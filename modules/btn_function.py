@@ -2,7 +2,7 @@ import time
 import psutil
 import os
 import sys
-from PySide6.QtCharts import QLineSeries, QChart
+from PySide6.QtCharts import QLineSeries, QChart, QDateTimeAxis, QValueAxis
 # from main import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
@@ -20,17 +20,14 @@ class CPUInfoCapture(QThread):
     def __init__(self, parent=None):
         super(CPUInfoCapture, self).__init__(parent)
         self.stop_statu = False
-        
+
     def run(self):
-        timer = 0
         while not self.stop_statu:
-            timer += 1
             cpu_percent = psutil.cpu_percent(interval=1)
             virtual_memory = psutil.virtual_memory()
             memory_percent = virtual_memory.percent
             
-            self.finishSignal.emit(f"{timer},{cpu_percent}, {memory_percent}\n")
-            time.sleep(1)
+            self.finishSignal.emit(f"{cpu_percent}, {memory_percent}\n")
 
 class CommandRunner(QThread):
     """
@@ -117,25 +114,69 @@ class CPUInfoCaptureFactory():
     def __init__(self, graphicsView):
         super().__init__()
         # 初始化一些变量
-        self.seriesS = QLineSeries()
-        self.seriesL = QLineSeries()
-        self.seriesS.setName("CPU")
-        self.seriesL.setName("RAM")
-        self.thread1 = None
-
-        # 传递绘图操作输出对象资源
         assert graphicsView is not None
         self.graphicsView = graphicsView
+        self.seriesS = QLineSeries()
+        self.seriesL = QLineSeries()
+        self.chart = QChart()
+        self.initChart()
+
+        self.thread1 = None
+        # 自动开始记录
+        self.startDataDisplay()
+
+    def initChart(self):
+        """
+        初始化图像数据
+        """
+        # 设置曲线名字
+        self.seriesS.setName("CPU")
+        self.seriesL.setName("RAM")
+        self.seriesMaxSize = 60
+        self.chart.setTitle("设备资源图")
+        self.chart.addSeries(self.seriesS)
+        self.chart.addSeries(self.seriesL)
+        # 设置坐标轴
+        self.axisX = QDateTimeAxis()
+        self.axisY = QValueAxis()
+        # 设置显示范围
+        self.axisX.setRange(QDateTime.currentDateTime().addSecs(-60), QDateTime.currentDateTime())
+        self.axisX.setReverse(False)
+        self.axisY.setMin(0)
+        self.axisY.setMax(100)
+        # 设置刻度
+        self.axisX.setTickCount(11)
+        self.axisY.setTickCount(11)
+        # 设置显示名字
+        self.axisX.setTitleText("时间(s)")
+        self.axisX.setFormat("hh:mm:ss")
+        self.axisY.setTitleText("占用率(%)")
+        # 设置网格显示，为灰色
+        self.axisX.setGridLineVisible(True)
+        self.axisX.setGridLineColor(Qt.gray)
+        self.axisY.setGridLineVisible(True)
+        self.axisY.setGridLineColor(Qt.gray)
+        # 添加坐标轴
+        self.chart.addAxis(self.axisX, Qt.AlignmentFlag.AlignBottom)
+        self.chart.addAxis(self.axisY, Qt.AlignmentFlag.AlignLeft)
+        # 绑定坐标，否则不会显示
+        self.seriesL.attachAxis(self.axisX)
+        self.seriesL.attachAxis(self.axisY)
+        self.seriesS.attachAxis(self.axisX)
+        self.seriesS.attachAxis(self.axisY)
+
+        self.graphicsView.setChart(self.chart)
+
     def closeThread(self):
-        if self.thread1:
-            self.thread1.terminate()
-            self.thread1 = None
+        self.clearDataDisplay()
 
     def startDataDisplay(self):
         """
         启动线程检测CPU和内存信息
         """
         # 开始监听记录信号
+        if self.thread1 is not None:
+            return
         self.thread1 = CPUInfoCapture()
         # 线程thread的信号和UI主线程中的槽函数data_display进行连接
         self.thread1.finishSignal.connect(self.dataDisplay)
@@ -144,13 +185,15 @@ class CPUInfoCaptureFactory():
         """
         清除已经记录的数据
         """
-        self.seriesS.clear()
-        self.seriesL.clear()
         # 终止线程
+        if self.thread1 is None:
+            return
         setattr(self.thread1,"stop_statu", True)
-        self.thread1.quit()
         self.thread1.wait()
         self.thread1.deleteLater()
+        self.seriesS.clear()
+        self.seriesL.clear()
+        self.thread1 = None
 
     def dataDisplay(self, str_signal):
         """
@@ -159,21 +202,19 @@ class CPUInfoCaptureFactory():
         """
         # 读取数据并展示
         data = str_signal.replace("\n","").split(",")
-        # 横坐标
-        col = int(data[0])
+        col = float(QDateTime.currentDateTime().toMSecsSinceEpoch())
+        if self.seriesL.count() > self.seriesMaxSize:
+            self.seriesL.remove(0)
+            self.seriesS.remove(0)
         # cpu
-        cpu = float(data[1])
+        cpu = float(data[0])
         # RAM
-        memory = float(data[2])
-
+        memory = float(data[1])
+        
         self.seriesS.append(col, cpu)
         self.seriesL.append(col, memory)
-        self.chart = QChart()
-        self.chart.setTitle("设备资源图")
-        self.chart.addSeries(self.seriesS)
-        self.chart.addSeries(self.seriesL)
-        self.chart.createDefaultAxes()
-        self.graphicsView.setChart(self.chart)
+        self.axisX.setMin(QDateTime.currentDateTime().addSecs(-60))
+        self.axisX.setMax(QDateTime.currentDateTime().addSecs(0))
 
 class OpenFileFactory(QWidget):
     def __init__(self, widgets) -> None:
@@ -250,8 +291,9 @@ class ConvertVideoFactory(QWidget):
     def closeThread(self):
         if self.thread1:
             self.thread1.terminate()
+            self.thread1.wait()
             self.thread1 = None
-            self.widgets.input_Edit3.setText("已停止")
+            self.widgets.input_Edit3.setPlainText("已停止")
 
     def selectFile(self, btn_Name):
         """

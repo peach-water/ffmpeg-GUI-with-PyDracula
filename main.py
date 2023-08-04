@@ -109,10 +109,10 @@ class MainWindow(QMainWindow):
             absPath = os.path.dirname(os.path.abspath(sys.executable))
         elif __file__:
             absPath = os.path.dirname(os.path.abspath(__file__))
-        useCustomTheme = False
+        useCustomTheme = True
         self.useCustomTheme = useCustomTheme
         self.absPath = absPath
-        themeFile = os.path.abspath(os.path.join(absPath, "themes\py_dracula_light.qss"))
+        themeFile = os.path.abspath(os.path.join(absPath, "themes\py_dracula_dark.qss"))
 
         # SET THEME AND HACKS
         if useCustomTheme:
@@ -126,7 +126,7 @@ class MainWindow(QMainWindow):
         # ///////////////////////////////////////////////////////////////
         if self.ConvertVideo is None:
             self.ConvertVideo = ConvertVideoFactory(widgets)
-            # 连接主页按钮
+            # 设置主页按钮功能
             widgets.btn_input1.clicked.connect(lambda: self.ConvertVideo.selectFile("btn_input1"))
             widgets.btn_input2.clicked.connect(lambda: self.ConvertVideo.selectFile("btn_input2"))
             widgets.btn_input3.clicked.connect(lambda: self.ConvertVideo.selectDirectory("btn_input3"))

@@ -273,7 +273,7 @@ QPlainTextEdit {
 	padding: 10px;
 	selection-color: rgb(255, 255, 255);
 	selection-background-color: rgb(255, 121, 198);
-	border : 2px solid rgb(255, 255, 255);
+	border : 2px solid rgb(105, 105, 105);
 }
 QPlainTextEdit  QScrollBar:vertical {
     width: 8px;
