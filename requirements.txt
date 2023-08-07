@@ -1,0 +1,6 @@
+Pyside6
+ffmpeg-python=0.2.0
+onnxruntime=1.15.1
+psutil
+pyinstaller=5.13.0
+numpy

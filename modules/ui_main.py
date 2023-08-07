@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainWZyYke.ui'
+## Form generated from reading UI file 'mainbjADNv.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.5.2
 ##
@@ -674,13 +674,17 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_8.addWidget(self.btn_home)
 
-        self.btn_computer = QPushButton(self.topMenu)
-        self.btn_computer.setObjectName(u"btn_computer")
-        self.btn_computer.setMinimumSize(QSize(0, 45))
-        self.btn_computer.setCursor(QCursor(Qt.PointingHandCursor))
-        self.btn_computer.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-devices.png);")
+        self.btn_autoCut = QPushButton(self.topMenu)
+        self.btn_autoCut.setObjectName(u"btn_autoCut")
+        sizePolicy.setHeightForWidth(self.btn_autoCut.sizePolicy().hasHeightForWidth())
+        self.btn_autoCut.setSizePolicy(sizePolicy)
+        self.btn_autoCut.setMinimumSize(QSize(0, 45))
+        self.btn_autoCut.setFont(font)
+        self.btn_autoCut.setCursor(QCursor(Qt.PointingHandCursor))
+        self.btn_autoCut.setLayoutDirection(Qt.LeftToRight)
+        self.btn_autoCut.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-library.png);")
 
-        self.verticalLayout_8.addWidget(self.btn_computer)
+        self.verticalLayout_8.addWidget(self.btn_autoCut)
 
         self.btn_new = QPushButton(self.topMenu)
         self.btn_new.setObjectName(u"btn_new")
@@ -694,6 +698,14 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_8.addWidget(self.btn_new)
 
+        self.btn_computer = QPushButton(self.topMenu)
+        self.btn_computer.setObjectName(u"btn_computer")
+        self.btn_computer.setMinimumSize(QSize(0, 45))
+        self.btn_computer.setCursor(QCursor(Qt.PointingHandCursor))
+        self.btn_computer.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-devices.png);")
+
+        self.verticalLayout_8.addWidget(self.btn_computer)
+
         self.btn_widgets = QPushButton(self.topMenu)
         self.btn_widgets.setObjectName(u"btn_widgets")
         sizePolicy.setHeightForWidth(self.btn_widgets.sizePolicy().hasHeightForWidth())
@@ -705,18 +717,6 @@ class Ui_MainWindow(object):
         self.btn_widgets.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-gamepad.png);")
 
         self.verticalLayout_8.addWidget(self.btn_widgets)
-
-        self.btn_save = QPushButton(self.topMenu)
-        self.btn_save.setObjectName(u"btn_save")
-        sizePolicy.setHeightForWidth(self.btn_save.sizePolicy().hasHeightForWidth())
-        self.btn_save.setSizePolicy(sizePolicy)
-        self.btn_save.setMinimumSize(QSize(0, 45))
-        self.btn_save.setFont(font)
-        self.btn_save.setCursor(QCursor(Qt.PointingHandCursor))
-        self.btn_save.setLayoutDirection(Qt.LeftToRight)
-        self.btn_save.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-save.png);")
-
-        self.verticalLayout_8.addWidget(self.btn_save)
 
         self.btn_exit = QPushButton(self.topMenu)
         self.btn_exit.setObjectName(u"btn_exit")
@@ -1161,7 +1161,7 @@ class Ui_MainWindow(object):
 
         self.btn_input3 = QPushButton(self.convert_video)
         self.btn_input3.setObjectName(u"btn_input3")
-        self.btn_input3.setMinimumSize(QSize(40, 40))
+        self.btn_input3.setMinimumSize(QSize(60, 40))
         self.btn_input3.setCursor(QCursor(Qt.PointingHandCursor))
         self.btn_input3.setStyleSheet(u"")
 
@@ -1464,7 +1464,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 218, 218))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 311, 218))
         self.scrollAreaWidgetContents.setStyleSheet(u" QScrollBar:vertical {\n"
 "	border: none;\n"
 "    background: rgb(52, 59, 72);\n"
@@ -1694,6 +1694,90 @@ class Ui_MainWindow(object):
         self.verticalLayout_20.addWidget(self.label)
 
         self.stackedWidget.addWidget(self.new_page)
+        self.auto_cut_page = QWidget()
+        self.auto_cut_page.setObjectName(u"auto_cut_page")
+        self.verticalLayout_36 = QVBoxLayout(self.auto_cut_page)
+        self.verticalLayout_36.setObjectName(u"verticalLayout_36")
+        self.verticalLayout_35 = QVBoxLayout()
+        self.verticalLayout_35.setObjectName(u"verticalLayout_35")
+        self.horizontalLayout_17 = QHBoxLayout()
+        self.horizontalLayout_17.setObjectName(u"horizontalLayout_17")
+        self.verticalLayout_33 = QVBoxLayout()
+        self.verticalLayout_33.setObjectName(u"verticalLayout_33")
+        self.label_8 = QLabel(self.auto_cut_page)
+        self.label_8.setObjectName(u"label_8")
+        self.label_8.setMinimumSize(QSize(60, 40))
+        self.label_8.setMaximumSize(QSize(16777215, 60))
+        self.label_8.setStyleSheet(u"color: rgb(113, 126, 149);font-size: 18px;")
+
+        self.verticalLayout_33.addWidget(self.label_8)
+
+        self.autoCut_input_Edit = QPlainTextEdit(self.auto_cut_page)
+        self.autoCut_input_Edit.setObjectName(u"autoCut_input_Edit")
+        self.autoCut_input_Edit.setMinimumSize(QSize(0, 48))
+        self.autoCut_input_Edit.setMaximumSize(QSize(16777215, 48))
+
+        self.verticalLayout_33.addWidget(self.autoCut_input_Edit)
+
+
+        self.horizontalLayout_17.addLayout(self.verticalLayout_33)
+
+        self.autoCut_input_Btn = QPushButton(self.auto_cut_page)
+        self.autoCut_input_Btn.setObjectName(u"autoCut_input_Btn")
+        self.autoCut_input_Btn.setMinimumSize(QSize(60, 40))
+
+        self.horizontalLayout_17.addWidget(self.autoCut_input_Btn)
+
+
+        self.verticalLayout_35.addLayout(self.horizontalLayout_17)
+
+        self.horizontalLayout_18 = QHBoxLayout()
+        self.horizontalLayout_18.setObjectName(u"horizontalLayout_18")
+        self.verticalLayout_34 = QVBoxLayout()
+        self.verticalLayout_34.setObjectName(u"verticalLayout_34")
+        self.label_9 = QLabel(self.auto_cut_page)
+        self.label_9.setObjectName(u"label_9")
+        self.label_9.setMinimumSize(QSize(60, 40))
+        self.label_9.setMaximumSize(QSize(16777215, 60))
+        self.label_9.setStyleSheet(u"color: rgb(113, 126, 149);font-size: 18px;")
+
+        self.verticalLayout_34.addWidget(self.label_9)
+
+        self.autoCut_input2_Edit = QPlainTextEdit(self.auto_cut_page)
+        self.autoCut_input2_Edit.setObjectName(u"autoCut_input2_Edit")
+        self.autoCut_input2_Edit.setMinimumSize(QSize(0, 48))
+        self.autoCut_input2_Edit.setMaximumSize(QSize(16777215, 48))
+
+        self.verticalLayout_34.addWidget(self.autoCut_input2_Edit)
+
+
+        self.horizontalLayout_18.addLayout(self.verticalLayout_34)
+
+        self.autoCut_input2_Btn = QPushButton(self.auto_cut_page)
+        self.autoCut_input2_Btn.setObjectName(u"autoCut_input2_Btn")
+        self.autoCut_input2_Btn.setMinimumSize(QSize(60, 40))
+
+        self.horizontalLayout_18.addWidget(self.autoCut_input2_Btn)
+
+
+        self.verticalLayout_35.addLayout(self.horizontalLayout_18)
+
+        self.autoCut_output_Edit = QPlainTextEdit(self.auto_cut_page)
+        self.autoCut_output_Edit.setObjectName(u"autoCut_output_Edit")
+        self.autoCut_output_Edit.setStyleSheet(u"font-size: 14px;")
+
+        self.verticalLayout_35.addWidget(self.autoCut_output_Edit)
+
+        self.autoCut_run_Btn = QPushButton(self.auto_cut_page)
+        self.autoCut_run_Btn.setObjectName(u"autoCut_run_Btn")
+        self.autoCut_run_Btn.setMinimumSize(QSize(60, 40))
+
+        self.verticalLayout_35.addWidget(self.autoCut_run_Btn)
+
+
+        self.verticalLayout_36.addLayout(self.verticalLayout_35)
+
+        self.stackedWidget.addWidget(self.auto_cut_page)
         self.computer_info = QWidget()
         self.computer_info.setObjectName(u"computer_info")
         self.verticalLayout_22 = QVBoxLayout(self.computer_info)
@@ -1863,7 +1947,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(4)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -1874,11 +1958,14 @@ class Ui_MainWindow(object):
         self.titleLeftApp.setText(QCoreApplication.translate("MainWindow", u"PyDracula", None))
         self.titleLeftDescription.setText(QCoreApplication.translate("MainWindow", u"Modern GUI / Flat Style", None))
         self.toggleButton.setText(QCoreApplication.translate("MainWindow", u"Hide", None))
-        self.btn_home.setText(QCoreApplication.translate("MainWindow", u"Home", None))
-        self.btn_computer.setText(QCoreApplication.translate("MainWindow", u"computer-info", None))
+        self.btn_home.setText(QCoreApplication.translate("MainWindow", u"\u4e3b\u9875", None))
+#if QT_CONFIG(tooltip)
+        self.btn_autoCut.setToolTip(QCoreApplication.translate("MainWindow", u"\u8f93\u5165\u89c6\u9891\uff0c\u6839\u636e\u662f\u5426\u6709\u58f0\u97f3\u81ea\u52a8\u622a\u53d6\u5bf9\u5e94\u7684\u97f3\u9891\u548c\u89c6\u9891\u3002", None))
+#endif // QT_CONFIG(tooltip)
+        self.btn_autoCut.setText(QCoreApplication.translate("MainWindow", u"\u81ea\u52a8\u526a\u8f91", None))
         self.btn_new.setText(QCoreApplication.translate("MainWindow", u"New", None))
+        self.btn_computer.setText(QCoreApplication.translate("MainWindow", u"\u8bbe\u5907\u8d44\u6e90\u76d1\u63a7", None))
         self.btn_widgets.setText(QCoreApplication.translate("MainWindow", u"Widgets", None))
-        self.btn_save.setText(QCoreApplication.translate("MainWindow", u"Save", None))
         self.btn_exit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
         self.toggleLeftBox.setText(QCoreApplication.translate("MainWindow", u"Left Box", None))
         self.extraLabel.setText(QCoreApplication.translate("MainWindow", u"Left Box", None))
@@ -2067,6 +2154,11 @@ class Ui_MainWindow(object):
         self.btn_open_url.setText(QCoreApplication.translate("MainWindow", u"\u6253\u5f00\u7f51\u9875", None))
         self.btn_switch_picture.setText(QCoreApplication.translate("MainWindow", u"\u5207\u6362\u56fe\u7247", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"NEW PAGE TEST", None))
+        self.label_8.setText(QCoreApplication.translate("MainWindow", u"\u8f93\u5165\u6587\u4ef6", None))
+        self.autoCut_input_Btn.setText(QCoreApplication.translate("MainWindow", u"\u9009\u62e9\u6587\u4ef6", None))
+        self.label_9.setText(QCoreApplication.translate("MainWindow", u"\u8f93\u51fa\u4f4d\u7f6e", None))
+        self.autoCut_input2_Btn.setText(QCoreApplication.translate("MainWindow", u"\u9009\u62e9\u6587\u4ef6\u5939", None))
+        self.autoCut_run_Btn.setText(QCoreApplication.translate("MainWindow", u"\u5f00\u59cb\u526a\u8f91", None))
         self.btn_draw.setText(QCoreApplication.translate("MainWindow", u"\u7ed8\u56fe", None))
         self.btn_graphic_clear.setText(QCoreApplication.translate("MainWindow", u"\u6e05\u9664", None))
         self.btn_message.setText(QCoreApplication.translate("MainWindow", u"Message", None))

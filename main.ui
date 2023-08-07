@@ -869,26 +869,46 @@ Button */
                    <string notr="true">background-image: url(:/icons/images/icons/cil-home.png);</string>
                   </property>
                   <property name="text">
-                   <string>Home</string>
+                   <string>主页</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="btn_computer">
+                 <widget class="QPushButton" name="btn_autoCut">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>0</width>
                     <height>45</height>
                    </size>
                   </property>
+                  <property name="font">
+                   <font>
+                    <family>Segoe UI</family>
+                    <pointsize>10</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                   </font>
+                  </property>
                   <property name="cursor">
                    <cursorShape>PointingHandCursor</cursorShape>
                   </property>
+                  <property name="toolTip">
+                   <string>输入视频，根据是否有声音自动截取对应的音频和视频。</string>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
                   <property name="styleSheet">
-                   <string notr="true">background-image: url(:/icons/images/icons/cil-devices.png);</string>
+                   <string notr="true">background-image: url(:/icons/images/icons/cil-library.png);</string>
                   </property>
                   <property name="text">
-                   <string>computer-info</string>
+                   <string>自动剪辑</string>
                   </property>
                  </widget>
                 </item>
@@ -929,6 +949,25 @@ Button */
                  </widget>
                 </item>
                 <item>
+                 <widget class="QPushButton" name="btn_computer">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>45</height>
+                   </size>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background-image: url(:/icons/images/icons/cil-devices.png);</string>
+                  </property>
+                  <property name="text">
+                   <string>设备资源监控</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <widget class="QPushButton" name="btn_widgets">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -961,42 +1000,6 @@ Button */
                   </property>
                   <property name="text">
                    <string>Widgets</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="btn_save">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>45</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Segoe UI</family>
-                    <pointsize>10</pointsize>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="cursor">
-                   <cursorShape>PointingHandCursor</cursorShape>
-                  </property>
-                  <property name="layoutDirection">
-                   <enum>Qt::LeftToRight</enum>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">background-image: url(:/icons/images/icons/cil-save.png);</string>
-                  </property>
-                  <property name="text">
-                   <string>Save</string>
                   </property>
                  </widget>
                 </item>
@@ -1881,7 +1884,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                       <string notr="true">background: transparent;</string>
                      </property>
                      <property name="currentIndex">
-                      <number>1</number>
+                      <number>4</number>
                      </property>
                      <widget class="QWidget" name="home">
                       <property name="styleSheet">
@@ -2095,7 +2098,7 @@ background-repeat: no-repeat;</string>
                                   <widget class="QPushButton" name="btn_input3">
                                    <property name="minimumSize">
                                     <size>
-                                     <width>40</width>
+                                     <width>60</width>
                                      <height>40</height>
                                     </size>
                                    </property>
@@ -2743,7 +2746,7 @@ background-repeat: no-repeat;</string>
                                 <rect>
                                  <x>0</x>
                                  <y>0</y>
-                                 <width>218</width>
+                                 <width>311</width>
                                  <height>218</height>
                                 </rect>
                                </property>
@@ -3329,6 +3332,152 @@ background-repeat: no-repeat;</string>
                           <set>Qt::AlignCenter</set>
                          </property>
                         </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                     <widget class="QWidget" name="auto_cut_page">
+                      <layout class="QVBoxLayout" name="verticalLayout_36">
+                       <item>
+                        <layout class="QVBoxLayout" name="verticalLayout_35">
+                         <item>
+                          <layout class="QHBoxLayout" name="horizontalLayout_17">
+                           <item>
+                            <layout class="QVBoxLayout" name="verticalLayout_33">
+                             <item>
+                              <widget class="QLabel" name="label_8">
+                               <property name="minimumSize">
+                                <size>
+                                 <width>60</width>
+                                 <height>40</height>
+                                </size>
+                               </property>
+                               <property name="maximumSize">
+                                <size>
+                                 <width>16777215</width>
+                                 <height>60</height>
+                                </size>
+                               </property>
+                               <property name="styleSheet">
+                                <string notr="true">color: rgb(113, 126, 149);font-size: 18px;</string>
+                               </property>
+                               <property name="text">
+                                <string>输入文件</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QPlainTextEdit" name="autoCut_input_Edit">
+                               <property name="minimumSize">
+                                <size>
+                                 <width>0</width>
+                                 <height>48</height>
+                                </size>
+                               </property>
+                               <property name="maximumSize">
+                                <size>
+                                 <width>16777215</width>
+                                 <height>48</height>
+                                </size>
+                               </property>
+                              </widget>
+                             </item>
+                            </layout>
+                           </item>
+                           <item>
+                            <widget class="QPushButton" name="autoCut_input_Btn">
+                             <property name="minimumSize">
+                              <size>
+                               <width>60</width>
+                               <height>40</height>
+                              </size>
+                             </property>
+                             <property name="text">
+                              <string>选择文件</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                         <item>
+                          <layout class="QHBoxLayout" name="horizontalLayout_18">
+                           <item>
+                            <layout class="QVBoxLayout" name="verticalLayout_34">
+                             <item>
+                              <widget class="QLabel" name="label_9">
+                               <property name="minimumSize">
+                                <size>
+                                 <width>60</width>
+                                 <height>40</height>
+                                </size>
+                               </property>
+                               <property name="maximumSize">
+                                <size>
+                                 <width>16777215</width>
+                                 <height>60</height>
+                                </size>
+                               </property>
+                               <property name="styleSheet">
+                                <string notr="true">color: rgb(113, 126, 149);font-size: 18px;</string>
+                               </property>
+                               <property name="text">
+                                <string>输出位置</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QPlainTextEdit" name="autoCut_input2_Edit">
+                               <property name="minimumSize">
+                                <size>
+                                 <width>0</width>
+                                 <height>48</height>
+                                </size>
+                               </property>
+                               <property name="maximumSize">
+                                <size>
+                                 <width>16777215</width>
+                                 <height>48</height>
+                                </size>
+                               </property>
+                              </widget>
+                             </item>
+                            </layout>
+                           </item>
+                           <item>
+                            <widget class="QPushButton" name="autoCut_input2_Btn">
+                             <property name="minimumSize">
+                              <size>
+                               <width>60</width>
+                               <height>40</height>
+                              </size>
+                             </property>
+                             <property name="text">
+                              <string>选择文件夹</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                         <item>
+                          <widget class="QPlainTextEdit" name="autoCut_output_Edit">
+                           <property name="styleSheet">
+                            <string notr="true">font-size: 14px;</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="autoCut_run_Btn">
+                           <property name="minimumSize">
+                            <size>
+                             <width>60</width>
+                             <height>40</height>
+                            </size>
+                           </property>
+                           <property name="text">
+                            <string>开始剪辑</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
                        </item>
                       </layout>
                      </widget>

@@ -3,7 +3,6 @@ import psutil
 import os
 import sys
 from PySide6.QtCharts import QLineSeries, QChart, QDateTimeAxis, QValueAxis
-# from main import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
@@ -29,7 +28,7 @@ class CPUInfoCapture(QThread):
             
             self.finishSignal.emit(f"{cpu_percent}, {memory_percent}\n")
 
-class CommandRunner(QThread):
+class VideoConvert(QThread):
     """
     创建一个线程开始转码工作
     ~~~~~~~~~~~~~~~~~~
@@ -49,7 +48,7 @@ class CommandRunner(QThread):
                  i_output_ext=None,
                  i_process_Time=None
                 ):
-        super(CommandRunner, self).__init__()
+        super(VideoConvert, self).__init__()
         self.command = ""
         self.g_batch_Mode = i_batch_Mode
         if i_batch_Mode:
@@ -66,7 +65,7 @@ class CommandRunner(QThread):
     def run(self):
 
         if not self.g_batch_Mode:
-            l_runner = self.commandRunner(self.command)
+            l_runner = commandRunner(self.command)
             for i in l_runner:
                 self.finishSignal.emit(i)
             return 
@@ -81,32 +80,98 @@ class CommandRunner(QThread):
             lo_command = f"ffmpeg -i \"{lo_file}\" {self.g_convert_Command}"
             lo_command += f" \"{os.path.join(self.g_output_Dir, lo_fileName)}.{self.g_output_Ext}\""
 
-            l_runner = self.commandRunner(lo_command)
+            l_runner = commandRunner(lo_command)
             for i in l_runner:
-                i += "progressd %4d/%4d" % (l_count+1, len(l_unprocessed_file))
+                i += "处理进度 %4d/%4d" % (l_count+1, len(l_unprocessed_file))
                 self.finishSignal.emit(i)
-            time.sleep(2)
             l_count += 1
 
-    def commandRunner(self, command):
+def commandRunner(command, buffer=4):
         import subprocess
         p = subprocess.Popen(command,
                              stdout=subprocess.PIPE, 
                              stdin=subprocess.PIPE,
                              stderr=subprocess.STDOUT,
                              shell=False, 
-                             universal_newlines=True
+                             universal_newlines=False
                             )
-            
+        
         lines = []
-        for line in p.stdout:
-            lines.append(line)
+        l_buffer = p.stdout.read(128)
+        l_buffer_str = ""
+
+        while l_buffer:
+            l_buffer = l_buffer.decode("utf-8", "ignore").strip()
+            l_buffer_str += l_buffer
+            temp = l_buffer_str.replace("\n", "").split("\r")
+
+            for i in range(len(temp)-1):
+                if temp[i].find("frame") == -1:
+                    continue
+                lines.append(temp[i] + "\n")
+            while len(lines) > buffer:
+                lines.pop(0)
             string = ""
             for i in lines:
                 string += i
-            if len(lines) > 4:
-                lines.pop(0)
             yield string
+            l_buffer_str = temp[-1]
+            l_buffer = p.stdout.read(128)
+
+
+class VADRunner(QThread):
+    """
+    实现视频的自动分割，并获得处理好的结果
+    """
+    processSignal = Signal(str) # 传递预处理进度信息
+    finishSignal = Signal(str)
+    def __init__(self, i_file:str=None, i_output_dir:str=None, parent=None):
+        super(VADRunner, self).__init__(parent)
+        if i_file is None:
+            raise ValueError(f"No file input")
+        self.g_file = i_file
+        if i_output_dir is None:
+            raise ValueError(f"no output diectory")
+        self.g_output_dir = i_output_dir
+        
+    def run(self):
+        from . vad_functions import get_transcribe_timestamps, get_audio_duration
+        
+        result = get_transcribe_timestamps(
+            audio=self.g_file,
+            start_time=0,
+            end_time=get_audio_duration(self.g_file),
+            progress_tracking_callback=self.processSignal
+        )
+        # self.finishSignal.emit(result)
+        self.autoCutVideo(result)
+
+    def autoCutVideo(self, dict_signal: list):
+        from . vad_functions import format_timestamp
+        
+        l_fileHome = self.g_file
+        l_fileName = l_fileHome.split("/")[-1]
+        l_fileExt = l_fileName.split(".")[-1]
+        l_fileName = l_fileName[:-len(l_fileExt)-1]
+        l_fileHome = l_fileHome[:-(len(l_fileName)+len(l_fileExt)+2)]
+
+        for i, timestamp in enumerate(dict_signal):
+            start = format_timestamp(timestamp["start"], True, ".")
+            end = format_timestamp(timestamp["end"], True, ".")
+            lo_command = f"ffmpeg -i \"{l_fileHome}/{l_fileName}.{l_fileExt}\""
+            lo_command += f" -ss {start} -to {end}"
+            start = start.replace(":","-")[:-4]
+            end = end.replace(":","-")[:-4]
+            lo_command += f" -y \"{self.g_output_dir}/{l_fileName}_{start}_{end}.{l_fileExt}\""
+            # print(lo_command)
+            l_runner = commandRunner(lo_command, 8)
+
+            for res in l_runner:
+                res += "处理进度 %4d/%4d" % (i+1, len(dict_signal))
+                self.finishSignal.emit(res)
+
+        self.finishSignal.emit("done")
+
 # 功能实现模块
 # //////////////////////////////////////////////////////////////
 
@@ -388,7 +453,7 @@ class ConvertVideoFactory(QWidget):
         
     def updateCommandText(self):
         """
-        更新命令框
+        更新命令框显示的内容，预览命令
         """
         if self.widgets.input_Edit1.toPlainText() == "":
             self.widgets.output_command_Edit.setPlainText("指定输入文件")
@@ -406,38 +471,51 @@ class ConvertVideoFactory(QWidget):
         # 指定第二个输入文件
         if self.widgets.input_Edit2.toPlainText() != "":
             l_command += f" -i \"{self.widgets.input_Edit2.toPlainText()}\""
-        # 指定码率控制
-        if self.g_bitrate_Control != "":
-            l_command += f" -{self.g_bitrate_Control} {self.widgets.bitrate_Edit.toPlainText()}"
+
         # 选择输出位置和输出文件名
         l_home_dir = self.widgets.input_Edit3.toPlainText()
         if l_home_dir == "":
             l_home_dir = os.path.abspath(os.path.join(self.absPath, ".."))
-            
-        l_command += f" {self.g_convert_Mode} -preset {self.g_preset_Mode}"
-        l_command += f" -y \"{l_home_dir}/{l_fileName}.{self.g_file_Ext}\""
+        # 控制命令生成
+        l_command += self.convertCommandGenerate()
+        # 指定输出文件
+        l_command += f" \"{l_home_dir}/{l_fileName}.{self.g_file_Ext}\""
         self.widgets.output_command_Edit.setPlainText(l_command)
 
-    def runCommandText(self):
+    def convertCommandGenerate(self):
+        """
+        生成转码命令，指不包括输入输出以外的所有命令
+        """
+        l_command = ""
+        if self.g_bitrate_Control != "":
+            l_command += f" -{self.g_bitrate_Control} {self.widgets.bitrate_Edit.toPlainText()}"
+        l_command += f" {self.g_convert_Mode} -preset {self.g_preset_Mode} -y"
+        return l_command
+
+    def runCommand(self):
         """
         新建一个终端运行指令框的命令，如果是批量处理
         """
+        # 先终止前面未运行完的任务
+        if self.thread1:
+            self.thread1.terminate()
+            self.thread1.wait()
+            self.thread1.deleteLater()
+            self.thread1 = None
         # 单个文件处理
         if not self.g_batch_Mode:
-            self.thread1 = CommandRunner()
+
+            self.thread1 = VideoConvert()
             self.thread1.command = self.widgets.output_command_Edit.toPlainText()
         else:
-            l_convert_Command = ""
-            if self.g_bitrate_Control != "":
-                l_convert_Command += f" -{self.g_bitrate_Control} {self.widgets.bitrate_Edit.toPlainText()}"
             l_output_Dir = self.widgets.input_Edit3.toPlainText()
             l_home_Dir = self.widgets.input_Edit1.toPlainText()
             if l_output_Dir == "":
                 l_output_Dir = os.path.abspath(os.path.join(self.absPath, ".."))
             
-            l_convert_Command += f" {self.g_convert_Mode} -preset {self.g_preset_Mode}"
-            l_convert_Command += f" -y"
-            self.thread1 = CommandRunner(True, 
+            l_convert_Command = self.convertCommandGenerate()
+
+            self.thread1 = VideoConvert(True, 
                                         i_convert_Command=l_convert_Command,
                                         i_home_dir=l_home_Dir,
                                         i_output_dir=l_output_Dir,
@@ -455,3 +533,67 @@ class ConvertVideoFactory(QWidget):
             stgnal_str:     需要展示的信息
         """
         self.widgets.output_command_Edit.setPlainText(signal_str)
+
+class AutoCutFactory(QWidget):
+    def __init__(self, widgets) -> None:
+        super().__init__()
+        self.absPath = os.path.dirname(os.path.abspath(__file__))
+        self.widgets = widgets
+        self.thread1 = None # 调用VAD模型标记音频文件
+
+    def closeThread(self):
+        if self.thread1 is not None:
+            self.thread1.terminate()
+            self.thread1.wait()
+            self.thread1.deleteLater()
+            self.thread1 = None
+
+    def selectFile(self, btn_Name: str=None):
+        """
+        选择一个文件
+        """
+        l_home_dir = os.path.abspath(os.path.join(self.absPath, ".."))
+        l_fileName = QFileDialog.getOpenFileName(self, "选择文件", l_home_dir)[0]
+        self.widgets.autoCut_input_Edit.setPlainText(l_fileName)
+
+        temp = len(l_fileName.split("/")[-1])
+        self.widgets.autoCut_input2_Edit.setPlainText(l_fileName[:-(temp+1)])
+    
+    def selectDirectory(self):
+        """
+        选择输出位置
+        """
+        if self.widgets.autoCut_input2_Edit.toPlainText() == "":
+            l_home_dir = os.path.abspath(os.path.join(self.absPath, ".."))
+        else:
+            l_home_dir = self.widgets.autoCut_input2_Edit.toPlainText()
+        l_home_dir = QFileDialog.getExistingDirectory(self, "输出位置", l_home_dir)
+        self.widgets.autoCut_input2_Edit.setPlainText(l_home_dir)
+
+    def runCommand(self):
+        """
+        创建线程，调用VAD开始分割视频
+        """
+        l_home_dir = self.widgets.autoCut_input_Edit.toPlainText()
+        l_output_dir = self.widgets.autoCut_input2_Edit.toPlainText()
+        if self.thread1 is None:
+            self.thread1 = VADRunner(l_home_dir, l_output_dir)
+            self.thread1.processSignal.connect(self.runCommandTextShow)
+            self.thread1.finishSignal.connect(self.runCommandTextShow)
+        else:
+            self.thread1.g_file = l_home_dir
+            self.thread1.g_output_dir = l_output_dir
+        self.thread1.start()
+        
+
+    def updateCommandText(self):
+        """
+        更新界面
+        """
+        return
+
+    def runCommandTextShow(self, str_signal):
+        """
+        在文本框展示程序运行进度和运行结果
+        """
+        self.widgets.autoCut_output_Edit.setPlainText(str_signal)

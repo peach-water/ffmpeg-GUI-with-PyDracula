@@ -71,7 +71,7 @@ class MainWindow(QMainWindow):
         widgets.btn_home.clicked.connect(self.buttonClick)
         widgets.btn_widgets.clicked.connect(self.buttonClick)
         widgets.btn_new.clicked.connect(self.buttonClick)
-        widgets.btn_save.clicked.connect(self.buttonClick)
+        widgets.btn_autoCut.clicked.connect(self.buttonClick)
 
         
         # 自己加入菜单项一个新内容
@@ -87,6 +87,8 @@ class MainWindow(QMainWindow):
         self.CPUMonitor = None
         # 转换视频页(主页)
         self.ConvertVideo = None
+        # 自动剪辑主页
+        self.AutoCut = None
 
         # EXTRA LEFT BOX
         def openCloseLeftBox():
@@ -132,11 +134,15 @@ class MainWindow(QMainWindow):
             widgets.btn_input3.clicked.connect(lambda: self.ConvertVideo.selectDirectory("btn_input3"))
             widgets.list_mode.clicked.connect(lambda: self.ConvertVideo.selectMode(widgets.list_mode, "modeBox"))
             widgets.list_video_type.clicked.connect(lambda: self.ConvertVideo.selectMode(widgets.list_video_type, "typeBox"))
-            widgets.btn_command_run.clicked.connect(self.ConvertVideo.runCommandText)
+            widgets.btn_command_run.clicked.connect(self.ConvertVideo.runCommand)
             widgets.perset_set_Slider.valueChanged.connect(self.ConvertVideo.selectPresetMode)
             widgets.bitrate_mode_Combo.activated.connect(self.ConvertVideo.selectBitrateMode)
             widgets.bitrate_Edit.textChanged.connect(self.ConvertVideo.selectBitrateMode)
             widgets.batch_mode_Check.stateChanged.connect(self.ConvertVideo.selectBatchProcessMode)
+            # 提高交互性，文本框更新时触发
+            widgets.input_Edit1.textChanged.connect(self.ConvertVideo.updateCommandText)
+            widgets.input_Edit2.textChanged.connect(self.ConvertVideo.updateCommandText)
+            widgets.input_Edit3.textChanged.connect(self.ConvertVideo.updateCommandText)
             # 设置关闭按钮
             widgets.closeAppBtn.clicked.connect(self.ConvertVideo.closeThread)  
 
@@ -179,12 +185,20 @@ class MainWindow(QMainWindow):
             UIFunctions.resetStyle(self, btnName) # RESET ANOTHERS BUTTONS SELECTED
             btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet())) # SELECT MENU
 
-        if btnName == "btn_save":
+        if btnName == "btn_autoCut":
             # 给出功能未实现的提示
-            QMessageBox.information(self, "提示", "功能未实现", QMessageBox.Yes)
-            # widgets.stackedWidget.setCurrentWidget(widgets.convert_video) # SET PAGE
-            # UIFunctions.resetStyle(self, btnName) # RESET ANOTHERS BUTTONS SELECTED
-            # btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet())) # SELECT MENU
+            # QMessageBox.information(self, "提示", "功能未实现", QMessageBox.Yes)
+            if self.AutoCut is None:
+                self.AutoCut = AutoCutFactory(widgets)
+                widgets.autoCut_input_Btn.clicked.connect(self.AutoCut.selectFile)
+                widgets.autoCut_input2_Btn.clicked.connect(self.AutoCut.selectDirectory)
+                widgets.autoCut_run_Btn.clicked.connect(self.AutoCut.runCommand)
+                # 关闭按钮
+                widgets.closeAppBtn.clicked.connect(self.AutoCut.closeThread)
+                
+            widgets.stackedWidget.setCurrentWidget(widgets.auto_cut_page) # SET PAGE
+            UIFunctions.resetStyle(self, btnName) # RESET ANOTHERS BUTTONS SELECTED
+            btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet())) # SELECT MENU
 
         if btnName == "btn_computer":
             if self.CPUMonitor is None:

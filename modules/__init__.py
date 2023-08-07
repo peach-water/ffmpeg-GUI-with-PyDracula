@@ -30,4 +30,4 @@ from . ui_functions import *
 from . app_functions import *
 
 # BTN FUNCTIONS
-from . btn_function import CPUInfoCaptureFactory, OpenFileFactory, ConvertVideoFactory
+from .btn_functions import CPUInfoCaptureFactory, OpenFileFactory, ConvertVideoFactory, AutoCutFactory
