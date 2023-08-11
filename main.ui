@@ -1113,12 +1113,6 @@ Button */
        </item>
        <item>
         <widget class="QFrame" name="extraLeftBox">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
          <property name="maximumSize">
           <size>
            <width>0</width>
@@ -2746,7 +2740,7 @@ background-repeat: no-repeat;</string>
                                 <rect>
                                  <x>0</x>
                                  <y>0</y>
-                                 <width>311</width>
+                                 <width>218</width>
                                  <height>218</height>
                                 </rect>
                                </property>
@@ -3523,12 +3517,6 @@ background-repeat: no-repeat;</string>
                 </item>
                 <item>
                  <widget class="QFrame" name="extraRightBox">
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>0</height>
-                   </size>
-                  </property>
                   <property name="maximumSize">
                    <size>
                     <width>0</width>

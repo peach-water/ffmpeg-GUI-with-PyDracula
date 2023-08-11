@@ -7,6 +7,7 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 
+from .whisper.transcribe import transcribe
 # 线程创建实现
 # ///////////////////////////////////////////////////////////////
 class CPUInfoCapture(QThread):
@@ -106,8 +107,8 @@ def commandRunner(command, buffer=4):
             temp = l_buffer_str.replace("\n", "").split("\r")
 
             for i in range(len(temp)-1):
-                if temp[i].find("frame") == -1:
-                    continue
+                # if temp[i].find("frame") == -1:
+                #     continue
                 lines.append(temp[i] + "\n")
             while len(lines) > buffer:
                 lines.pop(0)
@@ -350,7 +351,7 @@ class ConvertVideoFactory(QWidget):
                          "转MP3": "-vn -f mp3",
                          "转GIF": "-f gif",
                          "内挂字幕": "-c copy -c:s copy",
-                        #  "内嵌字幕": "-qscale 0 -c:h264 -vf subtitles",
+                         "内嵌字幕": "-qscale 0 -vf subtitles=",
                          "视频两倍速" : "-r 120 -filter:a \"atempo=2.0\" -filter:v \"setpts=0.5*PTS\""
                         }
     def closeThread(self):
@@ -367,8 +368,9 @@ class ConvertVideoFactory(QWidget):
             btn_Name:       按下的按钮是哪个
         """
         l_home_dir = os.path.abspath(os.path.join(self.absPath, ".."))
-        l_fileName = QFileDialog.getOpenFileName(self, "选择文件", l_home_dir)[0]
         if btn_Name == "btn_input1":
+            l_fileName = QFileDialog.getOpenFileName(self, "选择文件", l_home_dir)[0]
+    
             self.widgets.input_Edit1.setPlainText(l_fileName)
             l_fileName = l_fileName.split("/")
             l_home_dir = l_fileName[0]
@@ -376,6 +378,9 @@ class ConvertVideoFactory(QWidget):
                 l_home_dir += "/" + l_fileName[i]
             self.widgets.input_Edit3.setPlainText(str(l_home_dir))
         elif btn_Name == "btn_input2":
+            if self.widgets.input_Edit3.toPlainText() != "":
+                l_home_dir = self.widgets.input_Edit3.toPlainText()
+            l_fileName = QFileDialog.getOpenFileName(self, "选择文件", l_home_dir)[0]
             self.widgets.input_Edit2.setPlainText(l_fileName)
         self.updateCommandText()
 
@@ -400,8 +405,8 @@ class ConvertVideoFactory(QWidget):
         """
         确定选择使用的预设
         输入：
-            mode:           传入选择的模式
-            listBoxIndex:   传入选择的输出视频格式
+            mode:           传入选择的内容
+            listBoxIndex:   传入激活的是哪个选项卡
         """
         l_item = mode.currentItem().text()
         if listBoxIndex == "modeBox":
@@ -470,8 +475,9 @@ class ConvertVideoFactory(QWidget):
         # ////////////////////////////////////////////////////////////
         # 指定第二个输入文件
         if self.widgets.input_Edit2.toPlainText() != "":
-            l_command += f" -i \"{self.widgets.input_Edit2.toPlainText()}\""
-
+            # 特别指定非内嵌字幕模式的处理方式
+            if self.g_convert_Mode.find(self.g_dict_Mode.get("内嵌字幕")) == -1:
+                l_command += f" -i \"{self.widgets.input_Edit2.toPlainText()}\""
         # 选择输出位置和输出文件名
         l_home_dir = self.widgets.input_Edit3.toPlainText()
         if l_home_dir == "":
@@ -489,6 +495,14 @@ class ConvertVideoFactory(QWidget):
         l_command = ""
         if self.g_bitrate_Control != "":
             l_command += f" -{self.g_bitrate_Control} {self.widgets.bitrate_Edit.toPlainText()}"
+        # 出现内嵌字幕时处理方法
+        if self.g_convert_Mode == self.g_dict_Mode.get("内嵌字幕"):
+            l_input_Edit2 = self.widgets.input_Edit2.toPlainText()
+            # 未指定字幕文件报错
+            if l_input_Edit2 == "":
+                l_command = "在文件2处指定字幕文件"
+                return l_command
+            self.g_convert_Mode = self.g_convert_Mode + "\\'" +l_input_Edit2+ "\\'"
         l_command += f" {self.g_convert_Mode} -preset {self.g_preset_Mode} -y"
         return l_command
 
@@ -597,3 +611,29 @@ class AutoCutFactory(QWidget):
         在文本框展示程序运行进度和运行结果
         """
         self.widgets.autoCut_output_Edit.setPlainText(str_signal)
+
+class AutoSubtitleFactory(QWidget):
+    def __init__(self):
+        super().__init__()
+        args = {
+            "mode": "audio",
+            "audio": None, # 必须指定配字幕文件名
+            "model": "tiny", # [tiny, base, small, medium]
+            "output_dir": ".", # 输出位置
+            "verbose": True, # 显示处理进度
+            "task": "transcribe", # 还有translate模式
+            "language": None,
+            "temperature": 0, # 采样使用的温度
+            "best_of": 5, # 候选采样数，基于一定温度的
+            "beam_size": 3, # beam search 采样数，当temperature为0生效
+            "patience": None,
+            "length_penalty": None,
+            "suppress_tokexs": "-1",
+            "initial_prompt": None,
+            "condition_on_previous_text": True,
+            "temperature_increment_on_fallback": 0.2,
+            "compression_ratio_threshold": 2.4,
+            "logprob_threshold": -1.0,
+            "no_speech_threshold": 0.6
+        }
+        

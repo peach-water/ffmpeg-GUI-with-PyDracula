@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainbjADNv.ui'
+## Form generated from reading UI file 'mainkbMbRk.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.5.2
 ##
@@ -764,7 +764,6 @@ class Ui_MainWindow(object):
 
         self.extraLeftBox = QFrame(self.bgApp)
         self.extraLeftBox.setObjectName(u"extraLeftBox")
-        self.extraLeftBox.setMinimumSize(QSize(0, 0))
         self.extraLeftBox.setMaximumSize(QSize(0, 16777215))
         self.extraLeftBox.setFrameShape(QFrame.NoFrame)
         self.extraLeftBox.setFrameShadow(QFrame.Raised)
@@ -1464,7 +1463,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 311, 218))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 218, 218))
         self.scrollAreaWidgetContents.setStyleSheet(u" QScrollBar:vertical {\n"
 "	border: none;\n"
 "    background: rgb(52, 59, 72);\n"
@@ -1818,7 +1817,6 @@ class Ui_MainWindow(object):
 
         self.extraRightBox = QFrame(self.content)
         self.extraRightBox.setObjectName(u"extraRightBox")
-        self.extraRightBox.setMinimumSize(QSize(0, 0))
         self.extraRightBox.setMaximumSize(QSize(0, 16777215))
         self.extraRightBox.setFrameShape(QFrame.NoFrame)
         self.extraRightBox.setFrameShadow(QFrame.Raised)
