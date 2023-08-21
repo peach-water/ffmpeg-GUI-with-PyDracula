@@ -1,4 +1,17 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import copy_metadata
+
+datas = []
+datas += copy_metadata('tqdm')
+datas += copy_metadata('regex')
+datas += copy_metadata('requests')
+datas += copy_metadata('packaging')
+datas += copy_metadata('filelock')
+datas += copy_metadata('numpy')
+datas += copy_metadata('tokenizers')
+datas += copy_metadata('huggingface-hub')
+datas += copy_metadata('safetensors')
+datas += copy_metadata('pyyaml')
 
 
 block_cipher = None
@@ -8,7 +21,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=datas,
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

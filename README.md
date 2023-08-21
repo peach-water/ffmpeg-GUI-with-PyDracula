@@ -3,8 +3,8 @@
 
 > 本项目从[PyDracula](https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6)修改而来
 > 感谢 Wanderson M. Pimenta 的 repository [PyDracula](https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6)
-
 > 感谢 snakers4 的 repository [Silero-vad](https://github.com/snakers4/silero-vad) 。
+> 感谢 PINTO0309 的 repository [whisper-onnx-cpu](https://github.com/PINTO0309/whisper-onnx-cpu) 。
 
 # 多种主题
 ![PyDracula_Default_Dark](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/dark_theme.png?raw=true)
@@ -29,12 +29,14 @@
 * 内挂字幕（仅限mkv格式）
 * 内嵌字幕
 * 自动切片（根据音频自动切出对应音频）
+* 接入 Whisper 实现视频自动生成字幕（Whisper似乎对中文识别不是很好，容易识别成繁体中文）
 
 未来期望实现功能：
-* 接入 Whisper 实现视频自动生成字幕（Whisper似乎对中文识别不是很好，容易识别成繁体中文）
 * 更多的目标格式
 * 多段视频拼接
 * ffmpeg错误提示和反馈（目前ffmpeg出错是没有提示和反馈的）
+* whisper模型选择和下载
+* whisper可以使用GPU加速
 
 > Pyside打包是真的大啊，不知道有没有什么可以压缩这部分的方法。
 
@@ -76,11 +78,15 @@ python setup.py build
 ```
 > ### 使用 Pyinstaller 编译 exe 项目
 ```console
-pyinstaller -Dw main.py 
+pyinstaller -Dw ./main.py --copy-metadata tqdm --copy-metadata regex --copy-metadata requests --copy-metadata packaging --copy-metadata filelock --copy-metadata numpy --copy-metadata tokenizers --copy-metadata huggingface-hub --copy-metadata safetensors --copy-metadata pyyaml
 ```
 在那之前还需要使用命令 pip install pyinstaller==5.13 来安装打包环境。
 更新的pyinstaller没有尝试。
-编译成功后，在当前目录下可以找到"./dist/main/main.exe"文件，在启动之前还需要复制theme主题文件到"./dist/main"，否则会因为找不到主题文件报错。同时还需要复制model文件到'./dist/main'目录下，自动剪辑功能需要这个模型。
+编译成功后，在当前目录下可以找到"./dist/main/main.exe"文件，在启动之前还需要复制theme主题文件到"./dist/main"，否则会因为找不到主题文件报错。类似的还有：
+* 复制model文件到'./dist/main'目录下，自动剪辑功能需要这个模型。
+* 复制modules/whisper/assets文件夹到'./dist/main/modules/whisper'目录下，配字幕需要这个功能
+
+> transformer库打包需要这一溜的metadata数据才可以正常运行，所以需要加上。
 
 ## 项目文件及文件夹
 > **main.py**: 程序主文件.

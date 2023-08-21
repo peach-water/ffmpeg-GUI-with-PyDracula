@@ -2,12 +2,18 @@ import time
 import psutil
 import os
 import sys
+import subprocess
 from PySide6.QtCharts import QLineSeries, QChart, QDateTimeAxis, QValueAxis
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 
+from . vad_functions import format_timestamp
+
 from .whisper.transcribe import transcribe
+from .whisper.model import load_model
+from .whisper.utils import write_srt, write_txt, write_vtt
+import numpy as np
 # 线程创建实现
 # ///////////////////////////////////////////////////////////////
 class CPUInfoCapture(QThread):
@@ -88,7 +94,6 @@ class VideoConvert(QThread):
             l_count += 1
 
 def commandRunner(command, buffer=4):
-        import subprocess
         p = subprocess.Popen(command,
                              stdout=subprocess.PIPE, 
                              stdin=subprocess.PIPE,
@@ -119,7 +124,6 @@ def commandRunner(command, buffer=4):
             l_buffer_str = temp[-1]
             l_buffer = p.stdout.read(128)
 
-
 class VADRunner(QThread):
     """
     实现视频的自动分割，并获得处理好的结果
@@ -144,17 +148,14 @@ class VADRunner(QThread):
             end_time=get_audio_duration(self.g_file),
             progress_tracking_callback=self.processSignal
         )
-        # self.finishSignal.emit(result)
         self.autoCutVideo(result)
 
-    def autoCutVideo(self, dict_signal: list):
-        from . vad_functions import format_timestamp
-        
+    def autoCutVideo(self, dict_signal: list):        
         l_fileHome = self.g_file
-        l_fileName = l_fileHome.split("/")[-1]
-        l_fileExt = l_fileName.split(".")[-1]
-        l_fileName = l_fileName[:-len(l_fileExt)-1]
-        l_fileHome = l_fileHome[:-(len(l_fileName)+len(l_fileExt)+2)]
+        l_fileName, l_fileExt = os.path.splitext(self.g_file)
+        l_fileName = os.path.basename(l_fileName)
+        l_fileExt = l_fileExt[1:] # os的splitExt会带有 "." 需要去掉
+        l_fileHome = os.path.dirname(self.g_file)
 
         for i, timestamp in enumerate(dict_signal):
             start = format_timestamp(timestamp["start"], True, ".")
@@ -172,6 +173,66 @@ class VADRunner(QThread):
                 self.finishSignal.emit(res)
 
         self.finishSignal.emit("done")
+
+class SubTitleRunner(QThread):
+    """
+    调用Whisper配字幕
+    """
+    processSignal = Signal(str)
+    finishSignal = Signal(str)
+    def __init__(self, args: dict, parent=None):
+        super(SubTitleRunner, self).__init__(parent)
+        self.g_model_name: str = args.pop("model")
+        self.g_output_dir: str = args.pop("output_dir")
+        self.g_mode = args.pop("mode")
+
+        if self.g_model_name.endswith(".en") and args["language"] not in {"en", "English"}:
+            self.finishSignal.emit(f"{self.g_model_name} is an English-only model but receipted '{args['language']}'; using English instead.")
+            args["language"] = "en"
+        
+        self.g_temperature = args.pop("temperature")
+        self.g_temperature_increment_on_fallback = args.pop("temperature_increment_on_fallback")
+        if self.g_temperature_increment_on_fallback is not None:
+            self.g_temperature = tuple(np.arange(self.g_temperature, 1.0+1e-6, self.g_temperature_increment_on_fallback))
+        else:
+            self.g_temperature = [self.g_temperature]
+        
+        self.g_model = load_model(self.g_model_name)
+
+        self.args = args
+        self.g_output_ext = self.args.pop("output_ext")
+        self.processSignal.connect(self.signalHandle)
+        self.g_information = []
+    
+    def run(self):
+        l_audio_path = self.args.pop("audio")
+        result = transcribe(
+            model=self.g_model,
+            audio=l_audio_path,
+            temperature=self.g_temperature,
+            signal_return=self.processSignal,
+            **self.args
+        )
+        l_audio_base = os.path.basename(l_audio_path)
+        if self.g_output_ext == "txt":
+            with open(os.path.join(self.g_output_dir, l_audio_base+".txt"), "w", encoding="utf-8") as txt:
+                write_txt(result["segments"], txt)
+        elif self.g_output_ext == "vtt":
+            with open(os.path.join(self.g_output_dir, l_audio_base+".vtt"), "w", encoding="utf-8") as vtt:
+                write_vtt(result["segments"], vtt)
+        else:
+            with open(os.path.join(self.g_output_dir, l_audio_base+".srt"), "w", encoding="utf-8") as srt:
+                write_srt(result["segments"], srt)
+        self.finishSignal.emit("done")
+
+    def signalHandle(self, i_processSignal):
+        self.g_information.append(i_processSignal)
+        while len(self.g_information) > 8:
+            self.g_information.pop(0)
+        string = ""
+        for i in self.g_information:
+            string += i + "\n"
+        self.finishSignal.emit(string)
 
 # 功能实现模块
 # //////////////////////////////////////////////////////////////
@@ -358,6 +419,7 @@ class ConvertVideoFactory(QWidget):
         if self.thread1:
             self.thread1.terminate()
             self.thread1.wait()
+            self.thread1.deleteLater()
             self.thread1 = None
             self.widgets.input_Edit3.setPlainText("已停止")
 
@@ -372,10 +434,8 @@ class ConvertVideoFactory(QWidget):
             l_fileName = QFileDialog.getOpenFileName(self, "选择文件", l_home_dir)[0]
     
             self.widgets.input_Edit1.setPlainText(l_fileName)
-            l_fileName = l_fileName.split("/")
-            l_home_dir = l_fileName[0]
-            for i in range(1, len(l_fileName)-1):
-                l_home_dir += "/" + l_fileName[i]
+            l_home_dir = os.path.dirname(l_fileName)
+
             self.widgets.input_Edit3.setPlainText(str(l_home_dir))
         elif btn_Name == "btn_input2":
             if self.widgets.input_Edit3.toPlainText() != "":
@@ -464,13 +524,11 @@ class ConvertVideoFactory(QWidget):
             self.widgets.output_command_Edit.setPlainText("指定输入文件")
             return
         l_command = f"ffmpeg -i \"{self.widgets.input_Edit1.toPlainText()}\""
-        # 取出文件名和拓展名
-        temp = self.widgets.input_Edit1.toPlainText().split("/")[-1]
-        l_fileExt = temp.split(".")[-1]
-        l_fileName = temp[:-len(l_fileExt)-1]
+        # 取出文件名
+        l_fileName, _ = os.path.splitext(self.widgets.input_Edit1.toPlainText())
+        l_fileName = os.path.basename(l_fileName)
 
         l_fileName += time.strftime("_%m-%d_%H-%M-%S", time.localtime())
-        del temp
         # 反馈展示
         # ////////////////////////////////////////////////////////////
         # 指定第二个输入文件
@@ -570,8 +628,8 @@ class AutoCutFactory(QWidget):
         l_fileName = QFileDialog.getOpenFileName(self, "选择文件", l_home_dir)[0]
         self.widgets.autoCut_input_Edit.setPlainText(l_fileName)
 
-        temp = len(l_fileName.split("/")[-1])
-        self.widgets.autoCut_input2_Edit.setPlainText(l_fileName[:-(temp+1)])
+        l_fileName = os.path.dirname(l_fileName)
+        self.widgets.autoCut_input2_Edit.setPlainText(l_fileName)
     
     def selectDirectory(self):
         """
@@ -613,22 +671,26 @@ class AutoCutFactory(QWidget):
         self.widgets.autoCut_output_Edit.setPlainText(str_signal)
 
 class AutoSubtitleFactory(QWidget):
-    def __init__(self):
+    """
+    配字幕功能实现类
+    """
+    def __init__(self, widgets):
         super().__init__()
-        args = {
+        self.args = {
             "mode": "audio",
             "audio": None, # 必须指定配字幕文件名
             "model": "tiny", # [tiny, base, small, medium]
             "output_dir": ".", # 输出位置
+            "output_ext": "srt", # 输出格式 srt, vtt, txt 三选一
             "verbose": True, # 显示处理进度
             "task": "transcribe", # 还有translate模式
-            "language": None,
+            "language": "zh",
             "temperature": 0, # 采样使用的温度
             "best_of": 5, # 候选采样数，基于一定温度的
             "beam_size": 3, # beam search 采样数，当temperature为0生效
             "patience": None,
             "length_penalty": None,
-            "suppress_tokexs": "-1",
+            "suppress_tokens": "-1",
             "initial_prompt": None,
             "condition_on_previous_text": True,
             "temperature_increment_on_fallback": 0.2,
@@ -636,4 +698,93 @@ class AutoSubtitleFactory(QWidget):
             "logprob_threshold": -1.0,
             "no_speech_threshold": 0.6
         }
+        if getattr(sys, "frozen", False):
+            absPath = os.path.dirname(os.path.abspath(sys.executable))
+        elif __file__:
+            absPath = os.path.dirname(os.path.abspath(__file__))
+        self.absPath = absPath
+        self.widgets = widgets
+        self.thread1 = None
+    
+    def closeThread(self):
+        if self.thread1:
+            self.thread1.terminate()
+            self.thread1.wait()
+            self.thread1.deleteLater()
+            self.thread1=None
+
+    def selectFile(self):
+        """
+        选择一个本地文件
+        """
+        if self.widgets.autoTitle_input_Edit.toPlainText() == "":
+            l_home_dir = os.path.abspath(os.path.join(self.absPath, ".."))
+        else:
+            l_home_dir = self.widgets.autoTitle_input_Edit.toPlainText()
+        l_file_Name = QFileDialog.getOpenFileName(self, "选择文件", l_home_dir)[0]
+        if l_file_Name == "":
+            return
+        self.args["audio"] = l_file_Name
+        self.widgets.autoTitle_input_Edit.setPlainText(l_file_Name)
+        l_home_dir = os.path.dirname(l_file_Name)
+        if self.widgets.autoTitle_input2_Edit.toPlainText() == "":
+            self.widgets.autoTitle_input2_Edit.setPlainText(l_home_dir)
+            self.args["output_dir"] = l_home_dir
+        self.updateCommandText()
+
+    def selectDirectory(self):
+        """
+        选择字幕文件输出配置
+        """
+        if self.widgets.autoTitle_input2_Edit.toPlainText() == "":
+            l_home_dir = os.path.abspath(os.path.join(self.absPath, ".."))
+        else:
+            l_home_dir = self.widgets.autoTitle_input2_Edit.toPlainText()
+        l_file_Name = QFileDialog.getExistingDirectory(self, "输出位置", l_home_dir)
+        if l_file_Name == "":
+            return
+        self.widgets.autoTitle_input2_Edit.setPlainText(l_file_Name)
+        self.args.update({"output_dir": l_file_Name})
+        self.updateCommandText()
+
+    def selectLanguage(self):
+        """
+        选择字幕语言
+        """
+        self.args.update({"language": self.widgets.autoTitle_comboBox.currentText()})
+        self.updateCommandText()
+
+    def selectSubTitleExt(self):
+        """
+        选择输出字幕格式
+        """
+        self.args["output_ext"] = self.widgets.autoTitle_comboBox2.currentText()
+        self.updateCommandText()
+
+    def runCommand(self):
+        """
+        创建线程，调用whisper配字幕
+        """
+        # 先结束之前的进程
+        self.closeThread()
+        # 创建新进程
+        if self.thread1 is None:
+            self.thread1 = SubTitleRunner(self.args.copy())
         
+        self.thread1.finishSignal.connect(self.updateCommandText)
+        self.thread1.start()
+
+    def updateCommandText(self, i_text=None):
+        """
+        更新文本框展示参数，给定内容则展示内容，否则展示默认配字幕使用的参数。
+        输入:
+            i_text:     需要显示的内容
+        """
+        string = i_text
+        if string is None:
+            string = ""
+            string += "输入文件 : " + self.args["audio"] + "\n"
+            string += "输出位置 : " + self.args["output_dir"] + "\n"
+            string += "字幕格式 : " + self.args["output_ext"] + "\n"
+            string += "字幕语言 : " + self.args["language"] + "\n"
+        self.widgets.autoTitle_output_Edit.setPlainText(string)

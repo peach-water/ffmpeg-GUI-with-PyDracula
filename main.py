@@ -62,14 +62,14 @@ class MainWindow(QMainWindow):
 
         # QTableWidget PARAMETERS
         # ///////////////////////////////////////////////////////////////
-        widgets.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        # widgets.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         # BUTTONS CLICK
         # ///////////////////////////////////////////////////////////////
 
         # LEFT MENUS
         widgets.btn_home.clicked.connect(self.buttonClick)
-        widgets.btn_widgets.clicked.connect(self.buttonClick)
+        widgets.btn_autoTitle.clicked.connect(self.buttonClick)
         widgets.btn_new.clicked.connect(self.buttonClick)
         widgets.btn_autoCut.clicked.connect(self.buttonClick)
 
@@ -89,6 +89,8 @@ class MainWindow(QMainWindow):
         self.ConvertVideo = None
         # 自动剪辑主页
         self.AutoCut = None
+        # 配字幕主页
+        self.AutoTitle = None
 
         # EXTRA LEFT BOX
         def openCloseLeftBox():
@@ -165,8 +167,20 @@ class MainWindow(QMainWindow):
             btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet()))
 
         # SHOW WIDGETS PAGE
-        if btnName == "btn_widgets":
-            widgets.stackedWidget.setCurrentWidget(widgets.widgets)
+        if btnName == "btn_autoTitle":
+            if self.AutoTitle is None:
+                self.AutoTitle = AutoSubtitleFactory(widgets)
+                # 设置主页按钮功能
+                widgets.autoTitle_comboBox.activated.connect(self.AutoTitle.selectLanguage)
+                widgets.autoTitle_comboBox2.activated.connect(self.AutoTitle.selectSubTitleExt)
+                widgets.autoTitle_input_Btn.clicked.connect(self.AutoTitle.selectFile)
+                widgets.autoTitle_input2_Btn.clicked.connect(self.AutoTitle.selectDirectory)
+                widgets.autoTitle_run_Btn.clicked.connect(self.AutoTitle.runCommand)
+                
+                # 设置关闭按钮
+                widgets.closeAppBtn.clicked.connect(self.AutoTitle.closeThread)
+
+            widgets.stackedWidget.setCurrentWidget(widgets.auto_subtitle_page)
             UIFunctions.resetStyle(self, btnName)
             btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet()))
 
