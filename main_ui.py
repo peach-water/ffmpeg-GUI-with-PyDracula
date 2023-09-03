@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'main.ui'
+## Form generated from reading UI file 'mainHPPOyR.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.5.2
 ##
@@ -1055,14 +1055,12 @@ class Ui_MainWindow(object):
         self.convert_video = QWidget()
         self.convert_video.setObjectName(u"convert_video")
         self.convert_video.setFont(font)
-        self.verticalLayout_32 = QVBoxLayout(self.convert_video)
-        self.verticalLayout_32.setObjectName(u"verticalLayout_32")
-        self.verticalLayout_29 = QVBoxLayout()
+        self.verticalLayout_29 = QVBoxLayout(self.convert_video)
         self.verticalLayout_29.setObjectName(u"verticalLayout_29")
         self.verticalLayout_28 = QVBoxLayout()
         self.verticalLayout_28.setObjectName(u"verticalLayout_28")
-        self.horizontalLayout_13 = QHBoxLayout()
-        self.horizontalLayout_13.setObjectName(u"horizontalLayout_13")
+        self.horizontalLayout_12 = QHBoxLayout()
+        self.horizontalLayout_12.setObjectName(u"horizontalLayout_12")
         self.verticalLayout_25 = QVBoxLayout()
         self.verticalLayout_25.setObjectName(u"verticalLayout_25")
         self.horizontalLayout_7 = QHBoxLayout()
@@ -1167,11 +1165,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_25.addLayout(self.horizontalLayout_10)
 
-        self.horizontalLayout_14 = QHBoxLayout()
-        self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
-
-        self.verticalLayout_25.addLayout(self.horizontalLayout_14)
-
         self.horizontalLayout_16 = QHBoxLayout()
         self.horizontalLayout_16.setSpacing(6)
         self.horizontalLayout_16.setObjectName(u"horizontalLayout_16")
@@ -1242,7 +1235,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_25.addLayout(self.horizontalLayout_16)
 
 
-        self.horizontalLayout_13.addLayout(self.verticalLayout_25)
+        self.horizontalLayout_12.addLayout(self.verticalLayout_25)
 
         self.list_mode = QListWidget(self.convert_video)
         QListWidgetItem(self.list_mode)
@@ -1259,7 +1252,7 @@ class Ui_MainWindow(object):
         self.list_mode.setMaximumSize(QSize(200, 16777215))
         self.list_mode.viewport().setProperty("cursor", QCursor(Qt.PointingHandCursor))
 
-        self.horizontalLayout_13.addWidget(self.list_mode)
+        self.horizontalLayout_12.addWidget(self.list_mode)
 
         self.list_video_type = QListWidget(self.convert_video)
         QListWidgetItem(self.list_video_type)
@@ -1270,10 +1263,10 @@ class Ui_MainWindow(object):
         self.list_video_type.setMaximumSize(QSize(100, 16777215))
         self.list_video_type.viewport().setProperty("cursor", QCursor(Qt.PointingHandCursor))
 
-        self.horizontalLayout_13.addWidget(self.list_video_type)
+        self.horizontalLayout_12.addWidget(self.list_video_type)
 
 
-        self.verticalLayout_28.addLayout(self.horizontalLayout_13)
+        self.verticalLayout_28.addLayout(self.horizontalLayout_12)
 
         self.verticalLayout_27 = QVBoxLayout()
         self.verticalLayout_27.setObjectName(u"verticalLayout_27")
@@ -1303,9 +1296,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_28.addLayout(self.verticalLayout_27)
 
-
-        self.verticalLayout_29.addLayout(self.verticalLayout_28)
-
         self.btn_command_run = QPushButton(self.convert_video)
         self.btn_command_run.setObjectName(u"btn_command_run")
         self.btn_command_run.setMinimumSize(QSize(40, 40))
@@ -1314,10 +1304,10 @@ class Ui_MainWindow(object):
         self.btn_command_run.setCursor(QCursor(Qt.PointingHandCursor))
         self.btn_command_run.setStyleSheet(u"")
 
-        self.verticalLayout_29.addWidget(self.btn_command_run)
+        self.verticalLayout_28.addWidget(self.btn_command_run)
 
 
-        self.verticalLayout_32.addLayout(self.verticalLayout_29)
+        self.verticalLayout_29.addLayout(self.verticalLayout_28)
 
         self.stackedWidget.addWidget(self.convert_video)
         self.blank = QWidget()
@@ -1747,7 +1737,10 @@ class Ui_MainWindow(object):
         self.btn_autoCut.setToolTip(QCoreApplication.translate("MainWindow", u"\u8f93\u5165\u89c6\u9891\uff0c\u6839\u636e\u662f\u5426\u6709\u58f0\u97f3\u81ea\u52a8\u622a\u53d6\u5bf9\u5e94\u7684\u97f3\u9891\u548c\u89c6\u9891\u3002", None))
 #endif // QT_CONFIG(tooltip)
         self.btn_autoCut.setText(QCoreApplication.translate("MainWindow", u"\u81ea\u52a8\u526a\u8f91", None))
-        self.btn_autoTitle.setText(QCoreApplication.translate("MainWindow", u"\u914d\u5b57\u5e55", None))
+#if QT_CONFIG(tooltip)
+        self.btn_autoTitle.setToolTip(QCoreApplication.translate("MainWindow", u"\u8f93\u5165\u89c6\u9891\uff0c\u4f7f\u7528Whisper\u6a21\u578b\u8bc6\u522b\u58f0\u97f3\u8f93\u51fa\u5b57\u5e55\u6587\u4ef6\u3002", None))
+#endif // QT_CONFIG(tooltip)
+        self.btn_autoTitle.setText(QCoreApplication.translate("MainWindow", u"\u81ea\u52a8\u914d\u5b57\u5e55", None))
         self.btn_computer.setText(QCoreApplication.translate("MainWindow", u"\u8bbe\u5907\u8d44\u6e90\u76d1\u63a7", None))
         self.btn_new.setText(QCoreApplication.translate("MainWindow", u"\u7a7a\u767d\u9875", None))
         self.btn_exit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
@@ -1777,7 +1770,7 @@ class Ui_MainWindow(object):
 "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-in"
                         "dent:0; text-indent:0px;\"><span style=\" font-size:12pt; font-weight:600; color:#ff79c6;\">Convert QRC</span></p>\n"
 "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:9pt; color:#ffffff;\">pyside6-rcc resources.qrc -o resources_rc.py</span></p></body></html>", None))
-        self.titleRightInfo.setText(QCoreApplication.translate("MainWindow", u"\u5de5\u5177\u7bb1", None))
+        self.titleRightInfo.setText(QCoreApplication.translate("MainWindow", u"\u89c6\u9891\u5904\u7406\u5de5\u5177\u7bb1", None))
 #if QT_CONFIG(tooltip)
         self.settingsTopBtn.setToolTip(QCoreApplication.translate("MainWindow", u"Settings", None))
 #endif // QT_CONFIG(tooltip)
@@ -1890,13 +1883,13 @@ class Ui_MainWindow(object):
         self.autoTitle_comboBox2.setItemText(1, QCoreApplication.translate("MainWindow", u"txt", None))
         self.autoTitle_comboBox2.setItemText(2, QCoreApplication.translate("MainWindow", u"vtt", None))
 
-        self.autoTitle_run_Btn.setText(QCoreApplication.translate("MainWindow", u"\u5f00\u59cb\u526a\u8f91", None))
+        self.autoTitle_run_Btn.setText(QCoreApplication.translate("MainWindow", u"\u5f00\u59cb\u8bc6\u522b", None))
         self.btn_draw.setText(QCoreApplication.translate("MainWindow", u"\u7ed8\u56fe", None))
         self.btn_graphic_clear.setText(QCoreApplication.translate("MainWindow", u"\u6e05\u9664", None))
         self.btn_message.setText(QCoreApplication.translate("MainWindow", u"Message", None))
         self.btn_print.setText(QCoreApplication.translate("MainWindow", u"Print", None))
         self.btn_logout.setText(QCoreApplication.translate("MainWindow", u"Logout", None))
         self.creditsLabel.setText(QCoreApplication.translate("MainWindow", u"Peach Water", None))
-        self.version.setText(QCoreApplication.translate("MainWindow", u"v0.2.0", None))
+        self.version.setText(QCoreApplication.translate("MainWindow", u"v0.2.1", None))
     # retranslateUi
 

@@ -46,8 +46,8 @@ class MainWindow(QMainWindow):
         # 软件标题
         # APP title
         # ///////////////////////////////////////////////////////////////
-        title = "PyDracula - Modern GUI"
-        description = "工具箱"
+        title = "Video Process"
+        description = "视频处理工具箱"
         # APPLY TEXTS
         self.setWindowTitle(title)
         widgets.titleRightInfo.setText(description)
@@ -72,12 +72,9 @@ class MainWindow(QMainWindow):
         widgets.btn_autoTitle.clicked.connect(self.buttonClick)
         widgets.btn_new.clicked.connect(self.buttonClick)
         widgets.btn_autoCut.clicked.connect(self.buttonClick)
-
-        
-        # 自己加入菜单项一个新内容
         widgets.btn_computer.clicked.connect(self.buttonClick)
       
-        # 这一段无用，测试接口函数的
+        # 这一段测试接口函数的，目前绑定更换主题功能
         widgets.btn_message.clicked.connect(self.buttonClick)
         # 子模块激活
         # ///////////////////////////////////////////////////////////////

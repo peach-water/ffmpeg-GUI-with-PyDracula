@@ -14,6 +14,7 @@ from .whisper.transcribe import transcribe
 from .whisper.model import load_model
 from .whisper.utils import write_srt, write_txt, write_vtt
 import numpy as np
+import json
 # 线程创建实现
 # ///////////////////////////////////////////////////////////////
 class CPUInfoCapture(QThread):
@@ -75,6 +76,7 @@ class VideoConvert(QThread):
             l_runner = commandRunner(self.command)
             for i in l_runner:
                 self.finishSignal.emit(i)
+            self.finishSignal.emit("done")
             return 
 
         l_home_dir = self.g_home_Dir
@@ -237,6 +239,22 @@ class SubTitleRunner(QThread):
 # 功能实现模块
 # //////////////////////////////////////////////////////////////
 
+def readCacheFile():
+    """
+    读取文件所在绝对路径，读取上次操作缓存文件
+    输入：
+
+    输出：
+    l_absPath:      文件绝对路径，str格式
+    l_FileName:     缓存文件，dict格式
+    """
+    l_absPath = os.path.dirname(os.path.abspath(__file__))
+    l_fileName = {}
+    if os.path.exists(os.path.join(l_absPath, "..", "config.json")):
+        with open(os.path.join(l_absPath, "..", "config.json"), "r") as f:
+            l_fileName = json.load(f)
+    return l_absPath, l_fileName
+
 class CPUInfoCaptureFactory():
     def __init__(self, graphicsView):
         super().__init__()
@@ -394,11 +412,12 @@ class OpenFileFactory(QWidget):
 class ConvertVideoFactory(QWidget):
     def __init__(self, widgets):
         super().__init__()
-        if getattr(sys, "frozen", False):
-            absPath = os.path.dirname(os.path.abspath(sys.executable))
-        elif __file__:
-            absPath = os.path.dirname(os.path.abspath(__file__))
-        self.absPath = absPath
+        self.absPath, self.g_dict_Cache = readCacheFile()
+        if self.g_dict_Cache.get("fileName"):
+            widgets.input_Edit1.setPlainText(self.g_dict_Cache["fileName"])
+        if self.g_dict_Cache.get("OutputDirName"):
+            widgets.input_Edit3.setPlainText(self.g_dict_Cache["OutputDirName"])
+
         self.widgets = widgets
         self.thread1 = None
         # self.widgets.input_Edit3.setPlainText(os.path.join(os.path.expanduser("~"), "Desktop"))
@@ -407,14 +426,16 @@ class ConvertVideoFactory(QWidget):
         self.g_preset_Mode = "fast"
         self.g_file_Ext = "mp4"
         self.g_batch_Mode = False # 是否启用批量处理模式
-        self.g_dict_Mode = {"转码H264": "-c:v h264", 
-                         "转码H265": "-c:v libx265", 
-                         "转MP3": "-vn -f mp3",
-                         "转GIF": "-f gif",
-                         "内挂字幕": "-c copy -c:s copy",
-                         "内嵌字幕": "-qscale 0 -vf subtitles=",
-                         "视频两倍速" : "-r 120 -filter:a \"atempo=2.0\" -filter:v \"setpts=0.5*PTS\""
-                        }
+        self.g_dict_Mode = {
+                "转码H264": "-c:v h264", 
+                "转码H265": "-c:v libx265", 
+                "转MP3": "-vn -f mp3",
+                "转GIF": "-f gif",
+                "内挂字幕": "-c copy -c:s copy",
+                "内嵌字幕": "-qscale 0 -vf subtitles=",
+                "视频两倍速" : "-r 120 -filter:a \"atempo=2.0\" -filter:v \"setpts=0.5*PTS\""
+        }
+        
     def closeThread(self):
         if self.thread1:
             self.thread1.terminate()
@@ -431,34 +452,48 @@ class ConvertVideoFactory(QWidget):
         """
         l_home_dir = os.path.abspath(os.path.join(self.absPath, ".."))
         if btn_Name == "btn_input1":
+            # 输入框有上次留下的内容，就沿用
+            if self.widgets.input_Edit1.toPlainText() != "":
+                l_home_dir = self.widgets.input_Edit1.toPlainText()
             l_fileName = QFileDialog.getOpenFileName(self, "选择文件", l_home_dir)[0]
     
-            self.widgets.input_Edit1.setPlainText(l_fileName)
-            l_home_dir = os.path.dirname(l_fileName)
-
-            self.widgets.input_Edit3.setPlainText(str(l_home_dir))
+            if l_fileName != "":
+                self.widgets.input_Edit1.setPlainText(l_fileName)
+                l_home_dir = os.path.dirname(l_fileName)
+                self.widgets.input_Edit3.setPlainText(str(l_home_dir))
         elif btn_Name == "btn_input2":
             if self.widgets.input_Edit3.toPlainText() != "":
                 l_home_dir = self.widgets.input_Edit3.toPlainText()
             l_fileName = QFileDialog.getOpenFileName(self, "选择文件", l_home_dir)[0]
-            self.widgets.input_Edit2.setPlainText(l_fileName)
+            if l_fileName != "":
+                self.widgets.input_Edit2.setPlainText(l_fileName)
         self.updateCommandText()
+        # 更新缓存
+        if l_fileName != "":
+            self.g_dict_Cache["fileName"] = os.path.dirname(l_fileName)
+            self.g_dict_Cache["OutputDirName"] = l_home_dir
 
     def selectDirectory(self, i_btn_Name):
         """
         选择输出文件夹位置
         """
-        
         if self.widgets.input_Edit3.toPlainText() == "":
             l_home_dir = os.path.abspath(os.path.join(self.absPath, ".."))
         else:
             l_home_dir = self.widgets.input_Edit3.toPlainText()
+
         l_fileName = QFileDialog.getExistingDirectory(self, "输出位置", l_home_dir)
-        if i_btn_Name == "btn_input3":
-            self.widgets.input_Edit3.setPlainText(l_fileName)
-        elif i_btn_Name == "btn_input1":
-            self.widgets.input_Edit1.setPlainText(l_fileName)
-            self.widgets.input_Edit3.setPlainText(os.path.abspath(os.path.join(l_fileName, "..")))
+        if l_fileName != "":
+            # 更新缓存
+            self.g_dict_Cache["OutputDirName"] = l_fileName
+            
+            if i_btn_Name == "btn_input3":
+                # 单文件处理模式
+                self.widgets.input_Edit3.setPlainText(l_fileName)
+            elif i_btn_Name == "btn_input1":
+                # 批处理模式
+                self.widgets.input_Edit1.setPlainText(l_fileName)
+                self.widgets.input_Edit3.setPlainText(os.path.abspath(os.path.join(l_fileName, "..")))
         self.updateCommandText()
 
     def selectMode(self, mode, listBoxIndex):
@@ -491,6 +526,9 @@ class ConvertVideoFactory(QWidget):
         self.updateCommandText()
 
     def selectPresetMode(self):
+        """
+        控制转码速度的滑块，设置不同挡位显示的内容
+        """
         l_mode_dict = {0: "placebo", 1: "veryslow", 2: "slower", 3: "slow", 4: "medium",
                         5: "fast", 6:"faster", 7:"veryfast", 8: "superfast", 9: "ultrafast"}
         self.g_preset_Mode = l_mode_dict.get(self.widgets.perset_set_Slider.value())
@@ -498,6 +536,9 @@ class ConvertVideoFactory(QWidget):
         self.updateCommandText()
 
     def selectBitrateMode(self):
+        """
+        码率控制模块
+        """
         if self.widgets.bitrate_mode_Combo.currentText() != "无":
             self.g_bitrate_Control = self.widgets.bitrate_mode_Combo.currentText()
         else:
@@ -505,6 +546,9 @@ class ConvertVideoFactory(QWidget):
         self.updateCommandText()
 
     def selectBatchProcessMode(self):
+        """
+        控制是否启用批处理模式，批量转码文件
+        """
         self.g_batch_Mode = self.widgets.batch_mode_Check.isChecked()
         if self.g_batch_Mode:
             self.widgets.btn_input1.setText("选择文件夹")
@@ -597,6 +641,8 @@ class ConvertVideoFactory(QWidget):
         # 启动线程
         self.thread1.finishSignal.connect(self.runCommandTextShow)
         self.thread1.start()
+        with open(os.path.join(self.absPath, "..", "config.json"), "w") as f:
+            json.dump(self.g_dict_Cache, f, indent=4)
     
     def runCommandTextShow(self, signal_str):
         """
@@ -609,7 +655,11 @@ class ConvertVideoFactory(QWidget):
 class AutoCutFactory(QWidget):
     def __init__(self, widgets) -> None:
         super().__init__()
-        self.absPath = os.path.dirname(os.path.abspath(__file__))
+        self.absPath, self.g_dict_Cache = readCacheFile()
+        if self.g_dict_Cache["fileName"]:
+            widgets.autoCut_input_Edit.setPlainText(self.g_dict_Cache["fileName"])
+        if self.g_dict_Cache["OutputDirName"]:
+            widgets.autoCut_input2_Edit.setPlainText(self.g_dict_Cache["OutputDirName"])
         self.widgets = widgets
         self.thread1 = None # 调用VAD模型标记音频文件
 
@@ -624,10 +674,15 @@ class AutoCutFactory(QWidget):
         """
         选择一个文件
         """
-        l_home_dir = os.path.abspath(os.path.join(self.absPath, ".."))
+        l_home_dir = self.widgets.autoCut_input_Edit.toPlainText()
+        if l_home_dir == "":
+            l_home_dir = os.path.abspath(os.path.join(self.absPath, ".."))
         l_fileName = QFileDialog.getOpenFileName(self, "选择文件", l_home_dir)[0]
-        self.widgets.autoCut_input_Edit.setPlainText(l_fileName)
 
+        if l_fileName == "":
+            return
+        self.widgets.autoCut_input_Edit.setPlainText(l_fileName)
+        self.g_dict_Cache["fileName"] = l_fileName
         l_fileName = os.path.dirname(l_fileName)
         self.widgets.autoCut_input2_Edit.setPlainText(l_fileName)
     
@@ -635,12 +690,15 @@ class AutoCutFactory(QWidget):
         """
         选择输出位置
         """
-        if self.widgets.autoCut_input2_Edit.toPlainText() == "":
+        l_home_dir = self.widgets.autoCut_input2_Edit.toPlainText()
+        if l_home_dir == "":
             l_home_dir = os.path.abspath(os.path.join(self.absPath, ".."))
-        else:
-            l_home_dir = self.widgets.autoCut_input2_Edit.toPlainText()
+
         l_home_dir = QFileDialog.getExistingDirectory(self, "输出位置", l_home_dir)
+        if l_home_dir == "":
+            return
         self.widgets.autoCut_input2_Edit.setPlainText(l_home_dir)
+        self.g_dict_Cache["OutputDirName"] = l_home_dir
 
     def runCommand(self):
         """
@@ -656,7 +714,9 @@ class AutoCutFactory(QWidget):
             self.thread1.g_file = l_home_dir
             self.thread1.g_output_dir = l_output_dir
         self.thread1.start()
-        
+        # 保存缓存
+        with open(os.path.join(self.absPath, "..", "config.json"), "w") as f:
+            json.dump(self.g_dict_Cache, f, indent=4)
 
     def updateCommandText(self):
         """
@@ -698,10 +758,11 @@ class AutoSubtitleFactory(QWidget):
             "logprob_threshold": -1.0,
             "no_speech_threshold": 0.6
         }
-        if getattr(sys, "frozen", False):
-            absPath = os.path.dirname(os.path.abspath(sys.executable))
-        elif __file__:
-            absPath = os.path.dirname(os.path.abspath(__file__))
+        absPath, self.g_dict_Cache = readCacheFile()
+        if self.g_dict_Cache.get("fileName"):
+            widgets.autoTitle_input_Edit.setPlainText(self.g_dict_Cache["fileName"])
+        if self.g_dict_Cache.get("OutputDirName"):
+            widgets.autoTitle_input2_Edit.setPlainText(self.g_dict_Cache["OutputDirName"])
         self.absPath = absPath
         self.widgets = widgets
         self.thread1 = None
@@ -717,35 +778,41 @@ class AutoSubtitleFactory(QWidget):
         """
         选择一个本地文件
         """
-        if self.widgets.autoTitle_input_Edit.toPlainText() == "":
+        l_home_dir = self.widgets.autoTitle_input_Edit.toPlainText()
+        if l_home_dir == "":
             l_home_dir = os.path.abspath(os.path.join(self.absPath, ".."))
-        else:
-            l_home_dir = self.widgets.autoTitle_input_Edit.toPlainText()
-        l_file_Name = QFileDialog.getOpenFileName(self, "选择文件", l_home_dir)[0]
-        if l_file_Name == "":
+
+        l_fileName = QFileDialog.getOpenFileName(self, "选择文件", l_home_dir)[0]
+        if l_fileName == "":
             return
-        self.args["audio"] = l_file_Name
-        self.widgets.autoTitle_input_Edit.setPlainText(l_file_Name)
-        l_home_dir = os.path.dirname(l_file_Name)
+            
+        self.args["audio"] = l_fileName
+        self.widgets.autoTitle_input_Edit.setPlainText(l_fileName)
+        
         if self.widgets.autoTitle_input2_Edit.toPlainText() == "":
+            l_home_dir = os.path.dirname(l_fileName)
             self.widgets.autoTitle_input2_Edit.setPlainText(l_home_dir)
             self.args["output_dir"] = l_home_dir
+            self.g_dict_Cache["OutputDirName"] = l_home_dir
         self.updateCommandText()
+        self.g_dict_Cache["fileName"] = l_fileName
 
     def selectDirectory(self):
         """
         选择字幕文件输出配置
         """
-        if self.widgets.autoTitle_input2_Edit.toPlainText() == "":
+        l_home_dir = self.widgets.autoTitle_input2_Edit.toPlainText()
+        if l_home_dir == "":
             l_home_dir = os.path.abspath(os.path.join(self.absPath, ".."))
-        else:
-            l_home_dir = self.widgets.autoTitle_input2_Edit.toPlainText()
-        l_file_Name = QFileDialog.getExistingDirectory(self, "输出位置", l_home_dir)
-        if l_file_Name == "":
+        
+        l_fileName = QFileDialog.getExistingDirectory(self, "输出位置", l_home_dir)
+        if l_fileName == "":
             return
-        self.widgets.autoTitle_input2_Edit.setPlainText(l_file_Name)
-        self.args.update({"output_dir": l_file_Name})
+        
+        self.widgets.autoTitle_input2_Edit.setPlainText(l_fileName)
+        self.args["output_dir"] = l_fileName
         self.updateCommandText()
+        self.g_dict_Cache["OutputDirName"] = l_fileName
 
     def selectLanguage(self):
         """
@@ -768,11 +835,13 @@ class AutoSubtitleFactory(QWidget):
         # 先结束之前的进程
         self.closeThread()
         # 创建新进程
-        if self.thread1 is None:
-            self.thread1 = SubTitleRunner(self.args.copy())
+        self.thread1 = SubTitleRunner(self.args.copy())
         
         self.thread1.finishSignal.connect(self.updateCommandText)
         self.thread1.start()
+        # 保存缓存
+        with open(os.path.join(self.absPath, "..", "config.json"), "w") as f:
+            json.dump(self.g_dict_Cache, f, indent=4)
 
     def updateCommandText(self, i_text=None):
         """
