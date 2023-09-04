@@ -15,6 +15,7 @@ from .whisper.model import load_model
 from .whisper.utils import write_srt, write_txt, write_vtt
 import numpy as np
 import json
+import re, ffmpeg
 # 线程创建实现
 # ///////////////////////////////////////////////////////////////
 class CPUInfoCapture(QThread):
@@ -58,6 +59,8 @@ class VideoConvert(QThread):
                 ):
         super(VideoConvert, self).__init__()
         self.command = ""
+        self.duration = 0.0
+        # 批处理模式
         self.g_batch_Mode = i_batch_Mode
         if i_batch_Mode:
             assert i_home_dir is not None
@@ -73,10 +76,9 @@ class VideoConvert(QThread):
     def run(self):
 
         if not self.g_batch_Mode:
-            l_runner = commandRunner(self.command)
+            l_runner = commandRunner(self.command, duration=self.duration)
             for i in l_runner:
                 self.finishSignal.emit(i)
-            self.finishSignal.emit("done")
             return 
 
         l_home_dir = self.g_home_Dir
@@ -88,43 +90,75 @@ class VideoConvert(QThread):
             lo_file = os.path.join(l_home_dir, lo_file)
             lo_command = f"ffmpeg -i \"{lo_file}\" {self.g_convert_Command}"
             lo_command += f" \"{os.path.join(self.g_output_Dir, lo_fileName)}.{self.g_output_Ext}\""
+            lo_duration = float(ffmpeg.probe(lo_file)["format"]["duration"])
 
-            l_runner = commandRunner(lo_command)
+            l_runner = commandRunner(lo_command, duration=lo_duration)
             for i in l_runner:
                 i += "处理进度 %4d/%4d" % (l_count+1, len(l_unprocessed_file))
                 self.finishSignal.emit(i)
             l_count += 1
 
-def commandRunner(command, buffer=4):
+def formatTimeToSecond(time: str) -> float:
+    """
+    格式化时间 hh:mm:ss.mm 转持续时间。
+
+    输入：
+        time:       字符串，格式化的时间
+    输出:
+        seconds:    浮点数，返回time对应的秒数
+    """
+    h = int(time[0:2])
+    m = int(time[3:5])
+    s = int(time[6:8])
+    ms = int(time[9:12])
+    seconds = (h*60*60) + (m * 60) + s + (ms/100)
+    return seconds
+
+def commandRunner(command, duration=None, buffer=4):
         p = subprocess.Popen(command,
                              stdout=subprocess.PIPE, 
                              stdin=subprocess.PIPE,
                              stderr=subprocess.STDOUT,
                              shell=False, 
-                             universal_newlines=False
+                             universal_newlines=True,
+                             encoding="utf-8"
                             )
         
         lines = []
-        l_buffer = p.stdout.read(128)
-        l_buffer_str = ""
-
-        while l_buffer:
-            l_buffer = l_buffer.decode("utf-8", "ignore").strip()
-            l_buffer_str += l_buffer
-            temp = l_buffer_str.replace("\n", "").split("\r")
-
-            for i in range(len(temp)-1):
-                # if temp[i].find("frame") == -1:
-                #     continue
-                lines.append(temp[i] + "\n")
+        for line in p.stdout:
+            lines.append(line)            
             while len(lines) > buffer:
                 lines.pop(0)
             string = ""
             for i in lines:
                 string += i
+            time = re.search(r"\stime=(?P<time>\S+)", line)
+            if time and duration:
+                line = line[time.start():time.end()].split("=")
+                percent = formatTimeToSecond(line[-1])/duration
+                string += f"\n处理进度：{round(percent*100,ndigits=2)}% / 100.00%\t"
             yield string
-            l_buffer_str = temp[-1]
-            l_buffer = p.stdout.read(128)
+        # 老方法
+        # l_buffer = p.stdout.read(128)
+        # l_buffer_str = ""
+
+        # while l_buffer:
+        #     l_buffer = l_buffer.decode("utf-8", "ignore").strip()
+        #     l_buffer_str += l_buffer
+        #     temp = l_buffer_str.replace("\n", "").split("\r")
+
+        #     for i in range(len(temp)-1):
+        #         # if temp[i].find("frame") == -1:
+        #         #     continue
+        #         lines.append(temp[i] + "\n")
+        #     while len(lines) > buffer:
+        #         lines.pop(0)
+        #     string = ""
+        #     for i in lines:
+        #         string += i
+        #     yield string
+        #     l_buffer_str = temp[-1]
+        #     l_buffer = p.stdout.read(128)
 
 class VADRunner(QThread):
     """
@@ -168,7 +202,7 @@ class VADRunner(QThread):
             end = end.replace(":","-")[:-4]
             lo_command += f" -y \"{self.g_output_dir}/{l_fileName}_{start}_{end}.{l_fileExt}\""
             # print(lo_command)
-            l_runner = commandRunner(lo_command, 8)
+            l_runner = commandRunner(lo_command, buffer=8)
 
             for res in l_runner:
                 res += "处理进度 %4d/%4d" % (i+1, len(dict_signal))
@@ -623,6 +657,7 @@ class ConvertVideoFactory(QWidget):
 
             self.thread1 = VideoConvert()
             self.thread1.command = self.widgets.output_command_Edit.toPlainText()
+            self.thread1.duration = float(ffmpeg.probe(self.widgets.input_Edit1.toPlainText())["format"]["duration"])
         else:
             l_output_Dir = self.widgets.input_Edit3.toPlainText()
             l_home_Dir = self.widgets.input_Edit1.toPlainText()
