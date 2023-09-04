@@ -3,17 +3,54 @@
 
 > This Project is modified from https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6 .
 
-> **Warning**: this project was created using PySide6 and Python 3.9, using previous versions can cause compatibility problems.
+> thanks Wanderson M. Pimenta for open-source repository [PyDracula](https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6) .
 
-# YouTube - Presentation And Tutorial
+> thanks snakers4 for open-source repository [Silero-vad](https://github.com/snakers4/silero-vad) .
+
+> thanks PINTO0309 for open source repository [whisper-onnx-cpu](https://github.com/PINTO0309/whisper-onnx-cpu) .
+
+# Multiple Themes
+![PyDracula_Default_Dark](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/dark_theme.png?raw=true)
+![PyDracula_Light](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/light_theme.png?raw=true)
+
+# 😊Introduction
+
+🤣Some buttons have no actual function, and other subsequent features that enable these buttons in the future.
+
+> ❌**Important：** This project does not have FFMPEG environment installed in, and you need to solve FFMPEG environmental problems by yourself. The ffmpeg command can be recognized at the shell is ok.❌
+
+Currently implemented features:
+* Preview the command on the textbox, and you can modify the command if you learned how to use FFMPEG.
+* Convert video in preset mode
+* Extract videos
+* Double the speed of video
+* Extract audio and save in mp3
+* Batch transcoding
+* Setting transcoding bitrate
+* Setting transcoding speed mode
+* Merge subtitle
+* Auto Cut the video (Automatically cut out the corresponding video based on the audio)
+* Use Whisper to automatically generate subtitles for videos
+* Single file processing has error-code feedback
+
+features will be implemented in future:
+* More preset mode
+* Multi-segment video stitching
+* Batch FFMPEG error-code feedback (currently when FFMPEG batch transcoding return error-code, this software has no feedback)
+* Choose and Download Whisper model
+* GPU acceleration 
+
+> By default, the background terminal is displayed to facilitate viewing GUI errors. (You can pack and hide the terminal by yourself)
+
+# 🛠 For developer
+
+> 💥**Warning**: this project was created using PySide6 and Python 3.9, using previous versions can cause compatibility problems.
+
+## YouTube - Presentation And Tutorial
 Presentation and tutorial video with the main functions of the user interface.
 > 🔗 https://youtu.be/9DnaHg4M_AM
 
-# Multiple Themes
-![PyDracula_Default_Dark](https://user-images.githubusercontent.com/60605512/112993874-0b647700-9140-11eb-8670-61322d70dbe3.png)
-![PyDracula_Light](https://user-images.githubusercontent.com/60605512/112993918-18816600-9140-11eb-837c-e7a7c3d2b05e.png)
-
-# High DPI
+## High DPI
 > Qt Widgets is an old technology and does not have a good support for high DPI settings, making these images look distorted when your system has DPI applied above 100%.
 You can minimize this problem using a workaround by applying this code below in "main.py" just below the import of the Qt modules.
 ```python
@@ -24,21 +61,29 @@ from widgets import *
 os.environ["QT_FONT_DPI"] = "96"
 ```
 
-# Running
-> Inside your preferred terminal run the commands below depending on your system, remembering before installing Python 3.9> and PySide6 "pip install PySide6".
-> ## **Windows**:
+## Running
+> Inside your preferred terminal run the commands below depending on your system, remembering before installing Python 3.9> and requirements "pip install -r requirements.txt".
+> ### **Windows**:
 ```console
 python main.py
 ```
-> ## **MacOS and Linux**:
+> ### **MacOS and Linux**:
 ```console
 python3 main.py
 ```
 # Compiling
-> ## **Windows**:
+> ### **Windows**:
 ```console
 python setup.py build
 ```
+> ### **Using Pyinstaller**
+```console
+pyinstaller -Dw ./main.py --copy-metadata tqdm --copy-metadata regex --copy-metadata requests --copy-metadata packaging --copy-metadata filelock --copy-metadata numpy --copy-metadata tokenizers --copy-metadata huggingface-hub --copy-metadata safetensors --copy-metadata pyyaml
+```
+
+After successful compilation, the "./dist/main/main.exe" file can be found in the current directory, and you need to copy the theme directory to "./dist/main" before starting, otherwise an error will be reported because the theme file cannot be found. Follows similarly:
+* Copy the model directory to the './dist/main' directory, which is required for auto cut.
+* Copy the modules/whisper/assets folder to the './dist/main/modules/whisper' directory, this feature is required for subtitles.
 
 # Project Files And Folders
 > **main.py**: application initialization file.
@@ -54,7 +99,11 @@ python setup.py build
 > **modules/**: module for running PyDracula GUI.
 
 > **modules/app_funtions.py**: add your application's functions here.
-Up
+
+> **modules/btn_functions.py**: Software feature implementation files.
+
+> **modules/vad_functions.py**: Vocal recognition module, from SERR4/SILERO-VAD.
+
 > **modules/app_settings.py**: global variables to configure user interface.
 
 > **modules/resources_rc.py**: "resource.qrc" file compiled for python using the command: ```pyside6-rcc resources.qrc -o resources_rc.py```.

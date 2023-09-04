@@ -1,24 +1,26 @@
 # FFMPEG GUI PyDracula 
 # 
 
-> 本项目从[PyDracula](https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6)修改而来
-> 感谢 Wanderson M. Pimenta 的 repository [PyDracula](https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6)
+> 本项目从[PyDracula](https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6)修改而来。
+
+> 感谢 Wanderson M. Pimenta 的 repository [PyDracula](https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6)。
+
 > 感谢 snakers4 的 repository [Silero-vad](https://github.com/snakers4/silero-vad) 。
+
 > 感谢 PINTO0309 的 repository [whisper-onnx-cpu](https://github.com/PINTO0309/whisper-onnx-cpu) 。
 
 # 多种主题
 ![PyDracula_Default_Dark](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/dark_theme.png?raw=true)
 ![PyDracula_Light](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/light_theme.png?raw=true)
 
-# ✔简介
+# 😊简介
 
-🤣界面还没有整理🤣部分按钮目前没有实际作用🤣其实暂时作为一个ffmpeg的命令生成GUI工具也是可以的。
-🤣又不是不能用🤣。
+🤣部分按钮目前没有实际作用，等后续加功能会启用这些按钮。
 
 > ❌**重要：** 本项目没有ffmpeg环境安装，需要用户自行解决ffmpeg的环境问题。能够在命令行识别到ffmpeg命令即可。❌
 
 目前实现的功能：
-* 命令窗口预览将要执行的命令，可以修改（懂ffmpeg命令的话，就可以自己修改指令实现目的）
+* 命令窗口预览将要执行的命令，可以修改（懂ffmpeg命令的话，就可以自己修改执行指令）
 * 转码视频文件
 * 提取视频
 * 视频二倍速
@@ -28,20 +30,20 @@
 * 转码速度设置
 * 内挂字幕（仅限mkv格式）
 * 内嵌字幕
-* 自动切片（根据音频自动切出对应音频）
+* 自动切片（根据音频自动切出对应视频）
 * 接入 Whisper 实现视频自动生成字幕（Whisper似乎对中文识别不是很好，容易识别成繁体中文）
 * ffmpeg单文件处理有错误反馈
 
 未来期望实现功能：
 * 更多的目标格式
 * 多段视频拼接
-* 批处理ffmpeg错误提示和反馈（目前ffmpeg批处理转码出错本软件是没有反馈的）
+* 批处理ffmpeg错误提示和反馈（目前ffmpeg批处理转码出错时，本软件是没有反馈的）
 * whisper模型选择和下载
 * whisper可以使用GPU加速
 
 > Pyside打包是真的大啊，不知道有没有什么可以压缩这部分的方法。
 
-> 默认会显示后台终端，方便查看GUI报错。
+> 默认会显示后台终端，方便查看GUI报错。（可以自行打包隐藏终端）
 
 # 🛠 以下为开发人员内容
 
@@ -104,9 +106,9 @@ pyinstaller -Dw ./main.py --copy-metadata tqdm --copy-metadata regex --copy-meta
 
 > **modules/app_funtions.py**: 原来的功能实现文件。
 
-> **modules/btn_functions.py**: ffmpeg功能实现文件。
+> **modules/btn_functions.py**: 软件功能实现文件。
 
-> **modules/vad_functions.py**: 人声识别模块，来自snakers4/silero-vad。
+> **modules/vad_functions.py**: 声音识别模块，来自snakers4/silero-vad。
 
 > **modules/app_settings.py**: 用户交互界面全局设置文件。
 
