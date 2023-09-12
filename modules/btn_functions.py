@@ -107,10 +107,12 @@ def formatTimeToSecond(time: str) -> float:
     输出:
         seconds:    浮点数，返回time对应的秒数
     """
-    h = int(time[0:2])
-    m = int(time[3:5])
-    s = int(time[6:8])
-    ms = int(time[9:12])
+    time = time.split(":")
+    h = int(time[0])
+    m = int(time[1])
+    time = time[-1].split(".")
+    s = int(time[0])
+    ms = int(time[1])
     seconds = (h*60*60) + (m * 60) + s + (ms/100)
     return seconds
 
