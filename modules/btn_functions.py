@@ -798,8 +798,10 @@ class AutoSubtitleFactory(QWidget):
         absPath, self.g_dict_Cache = readCacheFile()
         if self.g_dict_Cache.get("fileName"):
             widgets.autoTitle_input_Edit.setPlainText(self.g_dict_Cache["fileName"])
+            self.args["audio"] = self.g_dict_Cache["fileName"]
         if self.g_dict_Cache.get("OutputDirName"):
             widgets.autoTitle_input2_Edit.setPlainText(self.g_dict_Cache["OutputDirName"])
+            self.args["output_dir"] = self.g_dict_Cache["OutputDirName"]
         self.absPath = absPath
         self.widgets = widgets
         self.thread1 = None
