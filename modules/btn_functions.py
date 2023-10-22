@@ -457,19 +457,20 @@ class ConvertVideoFactory(QWidget):
         self.widgets = widgets
         self.thread1 = None
         # self.widgets.input_Edit3.setPlainText(os.path.join(os.path.expanduser("~"), "Desktop"))
-        self.g_convert_Mode = ""
+        self.g_convert_Mode = {}
         self.g_bitrate_Control = ""
         self.g_preset_Mode = "fast"
         self.g_file_Ext = "mp4"
         self.g_batch_Mode = False # 是否启用批量处理模式
         self.g_dict_Mode = {
-                "转码H264": "-c:v h264", 
-                "转码H265": "-c:v libx265", 
-                "转MP3": "-vn -f mp3",
-                "转GIF": "-f gif",
-                "内挂字幕": "-c copy -c:s copy",
-                "内嵌字幕": "-qscale 0 -vf subtitles=",
-                "视频两倍速" : "-r 120 -filter:a \"atempo=2.0\" -filter:v \"setpts=0.5*PTS\""
+                "转码H264": {"-c:v": " h264"}, 
+                "转码H265": {"-c:v": " libx265"}, 
+                "转MP3": {"-vn":" ", "-f": " mp3"},
+                "提取视频":{"-an":" ", "-c:v": " copy"},
+                "转GIF": {"-f": " gif"},
+                "内挂字幕": {"-c": " copy", "-c:s": " copy"},
+                "内嵌字幕": {"-qscale": " 0", "-vf subtitles=":""},
+                "视频两倍速" : {"-r":" 120", "-filter:a": " \"atempo=2.0\"", "-filter:v": " \"setpts=0.5*PTS\""}
         }
         
     def closeThread(self):
@@ -543,7 +544,7 @@ class ConvertVideoFactory(QWidget):
         if listBoxIndex == "modeBox":
             self.g_convert_Mode = self.g_dict_Mode.get(l_item)
             if self.g_convert_Mode is None:
-                self.g_convert_Mode = ""
+                self.g_convert_Mode = {}
             elif l_item == "转MP3":
                 # 禁用输出格式
                 self.widgets.list_video_type.setEnabled(False)
@@ -605,44 +606,55 @@ class ConvertVideoFactory(QWidget):
             return
         l_command = f"ffmpeg -i \"{self.widgets.input_Edit1.toPlainText()}\""
         # 取出文件名
-        l_fileName, _ = os.path.splitext(self.widgets.input_Edit1.toPlainText())
+        l_fileName, _ = os.path.splitext(self.widgets.input_Edit1.toPlainText()) # 去掉文件拓展名
         l_fileName = os.path.basename(l_fileName)
 
-        l_fileName += time.strftime("_%m-%d_%H-%M-%S", time.localtime())
+        l_fileName += time.strftime("_%m-%d_%H-%M-%S", time.localtime()) # 生成文件输出名
         # 反馈展示
         # ////////////////////////////////////////////////////////////
         # 指定第二个输入文件
         if self.widgets.input_Edit2.toPlainText() != "":
             # 特别指定非内嵌字幕模式的处理方式
-            if self.g_convert_Mode.find(self.g_dict_Mode.get("内嵌字幕")) == -1:
+            if self.g_convert_Mode.get("-vf subtitles=") is None:
                 l_command += f" -i \"{self.widgets.input_Edit2.toPlainText()}\""
         # 选择输出位置和输出文件名
         l_home_dir = self.widgets.input_Edit3.toPlainText()
         if l_home_dir == "":
             l_home_dir = os.path.abspath(os.path.join(self.absPath, ".."))
         # 控制命令生成
-        l_command += self.convertCommandGenerate()
+        l_control_command = self.convertCommandGenerate()
+        if type(l_control_command) == dict:
+            self.widgets.output_command_Edit.setPlainText(l_control_command[1])
+            return
+        l_command += l_control_command
         # 指定输出文件
-        l_command += f" \"{l_home_dir}/{l_fileName}.{self.g_file_Ext}\""
+        l_command += f" -y \"{l_home_dir}/{l_fileName}.{self.g_file_Ext}\""
         self.widgets.output_command_Edit.setPlainText(l_command)
 
     def convertCommandGenerate(self):
         """
         生成转码命令，指不包括输入输出以外的所有命令
         """
-        l_command = ""
+        l_command = {}
+        # 检查码率设置
         if self.g_bitrate_Control != "":
-            l_command += f" -{self.g_bitrate_Control} {self.widgets.bitrate_Edit.toPlainText()}"
+            l_command = {"-"+self.g_bitrate_Control:" "+self.widgets.bitrate_Edit.toPlainText()}
         # 出现内嵌字幕时处理方法
         if self.g_convert_Mode == self.g_dict_Mode.get("内嵌字幕"):
             l_input_Edit2 = self.widgets.input_Edit2.toPlainText()
             # 未指定字幕文件报错
             if l_input_Edit2 == "":
-                l_command = "在文件2处指定字幕文件"
+                l_command = {1:"在输入处理文件2处指定字幕文件"}
                 return l_command
-            self.g_convert_Mode = self.g_convert_Mode + "\\'" +l_input_Edit2+ "\\'"
-        l_command += f" {self.g_convert_Mode} -preset {self.g_preset_Mode} -y"
-        return l_command
+            self.g_convert_Mode["-vf subtitles="] = f"\"{l_input_Edit2}\""
+        # 最后是处理速度和默认覆盖原文件
+        l_command["-preset"] = " "+self.g_preset_Mode 
+        for i in self.g_convert_Mode.keys():
+            l_command[i] = self.g_convert_Mode[i]
+        l_control_command = ""
+        for i in l_command.keys():
+            l_control_command += " " + i + l_command[i]
+        return l_control_command
 
     def runCommand(self):
         """
@@ -678,6 +690,7 @@ class ConvertVideoFactory(QWidget):
         # 启动线程
         self.thread1.finishSignal.connect(self.runCommandTextShow)
         self.thread1.start()
+        # 保存本次运行的路径，方便下次快速使用
         with open(os.path.join(self.absPath, "..", "config.json"), "w") as f:
             json.dump(self.g_dict_Cache, f, indent=4)
     
