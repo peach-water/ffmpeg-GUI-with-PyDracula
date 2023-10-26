@@ -1,21 +1,7 @@
 # FFMPEG GUI PyDracula 
 # 
 
-> 本项目从[PyDracula](https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6)修改而来。
-
-> 感谢 Wanderson M. Pimenta 的 repository [PyDracula](https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6)。
-
-> 感谢 snakers4 的 repository [Silero-vad](https://github.com/snakers4/silero-vad) 。
-
-> 感谢 PINTO0309 的 repository [whisper-onnx-cpu](https://github.com/PINTO0309/whisper-onnx-cpu) 。
-
-# 多种主题
-![PyDracula_Default_Dark](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/dark_theme.png?raw=true)
-![PyDracula_Light](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/light_theme.png?raw=true)
-
 # 😊简介
-
-🤣部分按钮目前没有实际作用，等后续加功能会启用这些按钮。
 
 > ❌**重要：** 本项目没有ffmpeg环境安装，需要用户自行解决ffmpeg的环境问题。能够在命令行识别到ffmpeg命令即可。❌
 
@@ -32,12 +18,10 @@
 * 内嵌字幕
 * 自动切片（根据音频自动切出对应视频）
 * 接入 Whisper 实现视频自动生成字幕（Whisper似乎对中文识别不是很好，容易识别成繁体中文）
-* ffmpeg单文件处理有错误反馈
 
 未来期望实现功能：
 * 更多的目标格式
-* 多段视频拼接
-* 批处理ffmpeg错误提示和反馈（目前ffmpeg批处理转码出错时，本软件是没有反馈的）
+* 多段视频拼接（感觉这个功能不是那么重要）
 * whisper模型选择和下载
 * whisper可以使用GPU加速
 
@@ -120,5 +104,17 @@ pyinstaller -Dw ./main.py --copy-metadata tqdm --copy-metadata regex --copy-meta
 
 > **images/**: 在编译成资源文件resource_rc.py之前把项目需要使用的图像资源全部放到这里。
 
+# 感谢
 
+> 本项目从[PyDracula](https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6)修改而来。
+
+> 感谢 Wanderson M. Pimenta 的 repository [PyDracula](https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6)。
+
+> 感谢 snakers4 的 repository [Silero-vad](https://github.com/snakers4/silero-vad) 。
+
+> 感谢 PINTO0309 的 repository [whisper-onnx-cpu](https://github.com/PINTO0309/whisper-onnx-cpu) 。
+
+# 多种主题
+![PyDracula_Default_Dark](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/dark_theme.png?raw=true)
+![PyDracula_Light](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/light_theme.png?raw=true)
 

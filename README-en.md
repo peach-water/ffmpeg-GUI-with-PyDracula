@@ -1,21 +1,7 @@
 # FFMPEG GUI PyDracula 
 # 
 
-> This Project is modified from https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6 .
-
-> thanks Wanderson M. Pimenta for open-source repository [PyDracula](https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6) .
-
-> thanks snakers4 for open-source repository [Silero-vad](https://github.com/snakers4/silero-vad) .
-
-> thanks PINTO0309 for open source repository [whisper-onnx-cpu](https://github.com/PINTO0309/whisper-onnx-cpu) .
-
-# Multiple Themes
-![PyDracula_Default_Dark](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/dark_theme.png?raw=true)
-![PyDracula_Light](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/light_theme.png?raw=true)
-
 # 😊Introduction
-
-🤣Some buttons have no actual function, and other subsequent features that enable these buttons in the future.
 
 > ❌**Important：** This project does not have FFMPEG environment installed in, and you need to solve FFMPEG environmental problems by yourself. The ffmpeg command can be recognized at the shell is ok.❌
 
@@ -31,12 +17,10 @@ Currently implemented features:
 * Merge subtitle
 * Auto Cut the video (Automatically cut out the corresponding video based on the audio)
 * Use Whisper to automatically generate subtitles for videos
-* Single file processing has error-code feedback
 
 features will be implemented in future:
 * More preset mode
-* Multi-segment video stitching
-* Batch FFMPEG error-code feedback (currently when FFMPEG batch transcoding return error-code, this software has no feedback)
+* Multi-segment video stitching (Maybe not so important for this tiny project)
 * Choose and Download Whisper model
 * GPU acceleration 
 
@@ -120,5 +104,17 @@ After expoting in .py and change the line "import resources_rc" to "from. Resouc
 > To participate create a "Issue" with the name beginning with "#pydracula_project", leaving the link of your project on Github, name of the creator and what is its functionality. Your project will be added and this list will be deleted from "Issue".
 **Malicious programs will not be added**!
 
+# Thanks
 
+> This Project is modified from https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6 .
+
+> thanks Wanderson M. Pimenta for open-source repository [PyDracula](https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6) .
+
+> thanks snakers4 for open-source repository [Silero-vad](https://github.com/snakers4/silero-vad) .
+
+> thanks PINTO0309 for open source repository [whisper-onnx-cpu](https://github.com/PINTO0309/whisper-onnx-cpu) .
+
+# Multiple Themes
+![PyDracula_Default_Dark](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/dark_theme.png?raw=true)
+![PyDracula_Light](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/light_theme.png?raw=true)
 

@@ -63,6 +63,7 @@ def transcribe(
     no_speech_threshold: Optional[float] = 0.6,
     condition_on_previous_text: bool = True,
     signal_return = None,
+    cancel: list = [True],
     **decode_options,
 ):
     """
@@ -204,7 +205,7 @@ def transcribe(
     previous_seek_value = seek
     # 解码分析
     with tqdm.tqdm(total=num_frames, unit='frames', disable=verbose is not False) as pbar:
-        while seek < num_frames:
+        while seek < num_frames and cancel[0]:
             timestamp_offset = float(seek * HOP_LENGTH / SAMPLE_RATE)
             segment = pad_or_trim(mel[:, :, seek:], N_FRAMES)
             segment_duration = segment.shape[-1] * HOP_LENGTH / SAMPLE_RATE
