@@ -26,6 +26,11 @@ features will be implemented in future:
 
 > By default, the background terminal is displayed to facilitate viewing GUI errors. (You can pack and hide the terminal by yourself)
 
+# Multiple Themes
+![PyDracula_Default_Dark](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/dark_theme.png?raw=true)
+![PyDracula_Light](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/light_theme.png?raw=true)
+
+
 # 🛠 For developer
 
 > 💥**Warning**: this project was created using PySide6 and Python 3.9, using previous versions can cause compatibility problems.
@@ -114,7 +119,4 @@ After expoting in .py and change the line "import resources_rc" to "from. Resouc
 
 > thanks PINTO0309 for open source repository [whisper-onnx-cpu](https://github.com/PINTO0309/whisper-onnx-cpu) .
 
-# Multiple Themes
-![PyDracula_Default_Dark](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/dark_theme.png?raw=true)
-![PyDracula_Light](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/light_theme.png?raw=true)
 

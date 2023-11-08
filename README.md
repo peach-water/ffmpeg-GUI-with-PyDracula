@@ -29,6 +29,11 @@
 
 > 默认会显示后台终端，方便查看GUI报错。（可以自行打包隐藏终端）
 
+# 软件界面
+![PyDracula_Default_Dark](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/dark_theme.png?raw=true)
+![PyDracula_Light](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/light_theme.png?raw=true)
+
+
 # 🛠 以下为开发人员内容
 
 ## YouTube - 教程与帮助
@@ -114,7 +119,4 @@ pyinstaller -Dw ./main.py --copy-metadata tqdm --copy-metadata regex --copy-meta
 
 > 感谢 PINTO0309 的 repository [whisper-onnx-cpu](https://github.com/PINTO0309/whisper-onnx-cpu) 。
 
-# 多种主题
-![PyDracula_Default_Dark](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/dark_theme.png?raw=true)
-![PyDracula_Light](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/light_theme.png?raw=true)
 
