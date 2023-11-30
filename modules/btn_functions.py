@@ -44,7 +44,7 @@ class CPUInfoCapture(QThread):
 class VideoConvert(QThread):
     """
     创建一个线程开始转码工作
-    ~~~~~~~~~~~~~~~~~~
+    ---
     输入:
         * i_batch_Mode:       是否启用批量处理
         * i_convert_Command:  统一的处理命令（这一批做什么）
@@ -246,7 +246,10 @@ class VADRunner(QThread):
         )
         self.autoCutVideo(result)
 
-    def autoCutVideo(self, dict_signal: list):        
+    def autoCutVideo(self, dict_signal: list):  
+        """
+        根据模型划分的时间节点，循环创建剪辑指令交给子进程执行
+        """      
         l_fileHome = self.g_file
         l_fileName, l_fileExt = os.path.splitext(self.g_file)
         l_fileName = os.path.basename(l_fileName)
@@ -361,7 +364,6 @@ class SubTitleRunner(QThread):
         关闭本监控线程，核心是关闭run中的transcribe函数调用。
         """
         self.g_cancel_signal[0] = False
-        self.exit(0)
         pass
         
 # 功能实现模块
@@ -762,7 +764,7 @@ class ConvertVideoFactory(QWidget):
         # 单个文件处理
         if not self.g_batch_Mode:
             # 没有指令就不执行任务
-            if self.widgets.output_command_Edit.toPlainText() == "":
+            if self.widgets.output_command_Edit.toPlainText() in ["", CANCEL, DONE]:
                 return
             self.thread1 = VideoConvert()
             self.thread1.command = self.widgets.output_command_Edit.toPlainText()
@@ -800,8 +802,9 @@ class ConvertVideoFactory(QWidget):
             stgnal_str:     需要展示的信息
         """
         if signal_str == DONE or signal_str == CANCEL:
-            self.widgets.btn_command_run.setText("运行命令")
             self.closeThread()
+            self.widgets.btn_command_run.setText("运行命令")
+            
         self.widgets.output_command_Edit.setPlainText(signal_str)
 
 class AutoCutFactory(QWidget):
