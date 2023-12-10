@@ -27,8 +27,6 @@
 
 > Pyside打包是真的大啊，不知道有没有什么可以压缩这部分的方法。
 
-> 默认会显示后台终端，方便查看GUI报错。（可以自行打包隐藏终端）
-
 # 软件界面
 ![PyDracula_Default_Dark](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/dark_theme.png?raw=true)
 ![PyDracula_Light](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/light_theme.png?raw=true)
@@ -64,10 +62,6 @@ python main.py
 python3 main.py
 ```
 ## 编译
-> ### **Windows**:
-```console
-python setup.py build
-```
 > ### 使用 Pyinstaller 编译 exe 项目
 ```console
 pyinstaller -Dw ./main.py --copy-metadata tqdm --copy-metadata regex --copy-metadata requests --copy-metadata packaging --copy-metadata filelock --copy-metadata numpy --copy-metadata tokenizers --copy-metadata huggingface-hub --copy-metadata safetensors --copy-metadata pyyaml
@@ -78,7 +72,61 @@ pyinstaller -Dw ./main.py --copy-metadata tqdm --copy-metadata regex --copy-meta
 * 复制model文件到'./dist/main'目录下，自动剪辑功能需要这个模型。
 * 复制modules/whisper/assets文件夹到'./dist/main/modules/whisper'目录下，配字幕需要这个功能
 
-> transformer库打包需要这一溜的metadata数据才可以正常运行，所以需要加上。
+> transformers库打包需要这一溜的metadata数据才可以正常运行，所以需要加上。
+
+## 错误修复
+
+### pyinstaller 打包时错误
+
+打包python3.10出现tuple index out of range 错误，去python可执行文件位置找到 './Lib/dis.py' 修改 '_unpack_opargs' 函数为如下
+```python
+def _unpack_opargs(code):
+    extended_arg = 0
+    for i in range(0, len(code), 2):
+        op = code[i]
+        if op >= HAVE_ARGUMENT:
+            arg = code[i+1] | extended_arg
+            extended_arg = (arg << 8) if op == EXTENDED_ARG else 0
+        else:
+            arg = None
+            extended_arg = 0
+        yield (i, op, arg)
+
+```
+
+### 打包后错误
+
+使用 pyinstaller 可以打包，但是启动程序时出现如下所示错误。
+
+```shell
+File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "PyInstaller\loader\pyimod02_importers.py", line 385, in exec_module
+  File "transformers\utils\import_utils.py", line 37, in <module>
+    logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "transformers\utils\logging.py", line 124, in get_logger
+    _configure_library_root_logger()
+  File "transformers\utils\logging.py", line 88, in _configure_library_root_logger
+    _default_handler.flush = sys.stderr.flush
+                             ^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'flush'
+```
+
+修改 transformers 库的 `src/transformers/utils/logging.py` 文件，加上如下有 `+` 标记的两行代码，
+然后重新打包即可。
+
+```python
+def _configure has already_library_root_logger() -> None:
+    ...
+    _default_handler = logging.StreamHandler()
+    + if sys.stderr is None:
+    +     sys.stderr = open(os.devnull, "w")
+    
+    _default_handler.flush = sys.stderr.flush
+    ...
+```
 
 ## 项目文件及文件夹
 > **main.py**: 程序主文件.

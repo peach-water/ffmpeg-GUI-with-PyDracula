@@ -24,8 +24,6 @@ features will be implemented in future:
 * Choose and Download Whisper model
 * GPU acceleration 
 
-> By default, the background terminal is displayed to facilitate viewing GUI errors. (You can pack and hide the terminal by yourself)
-
 # Multiple Themes
 ![PyDracula_Default_Dark](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/dark_theme.png?raw=true)
 ![PyDracula_Light](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/light_theme.png?raw=true)
@@ -60,11 +58,7 @@ python main.py
 ```console
 python3 main.py
 ```
-# Compiling
-> ### **Windows**:
-```console
-python setup.py build
-```
+## Compiling
 > ### **Using Pyinstaller**
 ```console
 pyinstaller -Dw ./main.py --copy-metadata tqdm --copy-metadata regex --copy-metadata requests --copy-metadata packaging --copy-metadata filelock --copy-metadata numpy --copy-metadata tokenizers --copy-metadata huggingface-hub --copy-metadata safetensors --copy-metadata pyyaml
@@ -74,7 +68,61 @@ After successful compilation, the "./dist/main/main.exe" file can be found in th
 * Copy the model directory to the './dist/main' directory, which is required for auto cut.
 * Copy the modules/whisper/assets folder to the './dist/main/modules/whisper' directory, this feature is required for subtitles.
 
-# Project Files And Folders
+## Error Fix
+
+### Build error
+
+error info `tuple index out of range` raised when build with pyinstaller under the python3.10.
+Please modify the function `_unpack_opargs` from file `src/python3.10/Lib/dis.py` as follows.
+
+```python
+def _unpack_opargs(code):
+    extended_arg = 0
+    for i in range(0, len(code), 2):
+        op = code[i]
+        if op >= HAVE_ARGUMENT:
+            arg = code[i+1] | extended_arg
+            extended_arg = (arg << 8) if op == EXTENDED_ARG else 0
+        else:
+            arg = None
+            extended_arg = 0
+        yield (i, op, arg)
+
+```
+
+### Execute error
+
+Get an error like the one shown below when you start the program.
+```shell
+File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "PyInstaller\loader\pyimod02_importers.py", line 385, in exec_module
+  File "transformers\utils\import_utils.py", line 37, in <module>
+    logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "transformers\utils\logging.py", line 124, in get_logger
+    _configure_library_root_logger()
+  File "transformers\utils\logging.py", line 88, in _configure_library_root_logger
+    _default_handler.flush = sys.stderr.flush
+                             ^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'flush'
+```
+
+Please open the `[path to]/transformers/utils/logging.py` and add the follow code, then rebuild the program again.
+
+```python
+def _configure has already_library_root_logger() -> None:
+    ...
+    _default_handler = logging.StreamHandler()
+    + if sys.stderr is None:
+    +     sys.stderr = open(os.devnull, "w")
+    
+    _default_handler.flush = sys.stderr.flush
+    ...
+```
+
+## Project Files And Folders
 > **main.py**: application initialization file.
 
 > **main.ui**: Qt Designer project.
