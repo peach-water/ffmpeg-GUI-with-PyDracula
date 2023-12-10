@@ -2,11 +2,12 @@
 # from https://github.com/snakers4/silero-vad
 # ////////////////////////////////////////////////////////////////////////////
 
+import time
+import warnings
+from typing import Any, Iterator, List, Dict
+
 import numpy as np
 import ffmpeg
-import time
-from typing import Any, Iterator, List, Dict
-import warnings
 import onnxruntime
 from PySide6.QtCore import Signal
 

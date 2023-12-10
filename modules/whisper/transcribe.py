@@ -394,5 +394,94 @@ def cli():
     #         pass
 
 
+class SubTitleRunner():
+    """
+    调用Whisper配字幕，使用 onnx 封装的 whisper 神经网络模型
+    """
+    def __init__(self, args: dict, parent=None):
+        """
+        初始化信息控制类，
+        TODO args 目前是以一个字典的形式传入参数，可读性低，未来改为一个 class 类形式
+
+        Input:
+        ---
+            args - (dict(str:str))
+                参数字典
+        """
+        self.g_model_name: str = args.pop("model")
+        self.g_output_dir: str = args.pop("output_dir")
+        self.g_mode = args.pop("mode")
+
+        if self.g_model_name.endswith(".en") and args["language"] not in {"en", "English"}:
+            self.finishSignal.emit(f"{self.g_model_name} is an English-only model but receipted '{args['language']}'; using English instead.")
+            args["language"] = "en"
+        
+        self.g_temperature = args.pop("temperature")
+        self.g_temperature_increment_on_fallback = args.pop("temperature_increment_on_fallback")
+        if self.g_temperature_increment_on_fallback is not None:
+            self.g_temperature = tuple(np.arange(self.g_temperature, 1.0+1e-6, self.g_temperature_increment_on_fallback))
+        else:
+            self.g_temperature = [self.g_temperature]
+        
+        self.g_model = load_model(self.g_model_name)
+
+        self.args = args
+        self.g_output_ext = self.args.pop("output_ext")
+        self.g_information = []
+        self.g_cancel_signal = [True] # 用来结束transcribe函数调用，取消任务。使用list数据类型可以保证参数引用而不是值引用。TODO需要更高级的实现方式。
+    
+    def run(self):
+        """
+        开始任务，重载 qthread 的 run 方法
+        """
+        l_audio_path = self.args.pop("audio")
+        result = transcribe(
+            model=self.g_model,
+            audio=l_audio_path,
+            temperature=self.g_temperature,
+            signal_return=None,
+            cancel=self.g_cancel_signal,
+            **self.args
+        )
+        if not self.g_cancel_signal[0]:
+            # 任务取消，就不需要保存现有的文件
+            self.finishSignal.emit("任务取消")
+            return
+        l_audio_base = os.path.basename(l_audio_path)
+        if self.g_output_ext == "txt":
+            with open(os.path.join(self.g_output_dir, l_audio_base+".txt"), "w", encoding="utf-8") as txt:
+                write_txt(result["segments"], txt)
+        elif self.g_output_ext == "vtt":
+            with open(os.path.join(self.g_output_dir, l_audio_base+".vtt"), "w", encoding="utf-8") as vtt:
+                write_vtt(result["segments"], vtt)
+        else:
+            with open(os.path.join(self.g_output_dir, l_audio_base+".srt"), "w", encoding="utf-8") as srt:
+                write_srt(result["segments"], srt)
+
+
 if __name__ == '__main__':
-    cli()
+    # cli()
+    args = {
+            "mode": "audio",
+            "audio": "E:/FFOutput/RISV中国峰会.mkv", # 必须指定配字幕文件名
+            "model": "tiny", # [tiny, base, small, medium]
+            "output_dir": ".", # 输出位置
+            "output_ext": "srt", # 输出格式 srt, vtt, txt 三选一
+            "verbose": True, # 显示处理进度
+            "task": "transcribe", # 还有translate模式
+            "language": "zh",
+            "temperature": 0, # 采样使用的温度
+            "best_of": 5, # 候选采样数，基于一定温度的
+            "beam_size": 3, # beam search 采样数，当temperature为0生效
+            "patience": None,
+            "length_penalty": None,
+            "suppress_tokens": "-1",
+            "initial_prompt": None,
+            "condition_on_previous_text": True,
+            "temperature_increment_on_fallback": 0.2,
+            "compression_ratio_threshold": 2.4,
+            "logprob_threshold": -1.0,
+            "no_speech_threshold": 0.6
+        }
+    s = SubTitleRunner(args.copy())
+    s.run()

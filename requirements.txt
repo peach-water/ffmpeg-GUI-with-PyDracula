@@ -5,3 +5,5 @@ onnx=1.14.0
 psutil
 pyinstaller=5.13.0
 numpy
+transformers=4.31.0
+tokenizers=0.13.3
