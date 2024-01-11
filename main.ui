@@ -2637,9 +2637,9 @@ background-repeat: no-repeat;</string>
                       </layout>
                      </widget>
                      <widget class="QWidget" name="auto_subtitle_page">
-                      <layout class="QVBoxLayout" name="verticalLayout_19">
+                      <layout class="QVBoxLayout" name="verticalLayout_32">
                        <item>
-                        <layout class="QVBoxLayout" name="verticalLayout_18">
+                        <layout class="QVBoxLayout" name="verticalLayout_19">
                          <item>
                           <layout class="QHBoxLayout" name="horizontalLayout_19">
                            <item>
@@ -2774,6 +2774,9 @@ background-repeat: no-repeat;</string>
                              </item>
                              <item>
                               <widget class="QComboBox" name="autoTitle_comboBox">
+                               <property name="toolTip">
+                                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;识别文本，如果视频或音频语种不是指定语种，还会进行翻译工作（谨慎使用翻译功能）。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                               </property>
                                <item>
                                 <property name="text">
                                  <string>zh</string>
@@ -2802,6 +2805,9 @@ background-repeat: no-repeat;</string>
                              </item>
                              <item>
                               <widget class="QComboBox" name="autoTitle_comboBox2">
+                               <property name="toolTip">
+                                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;输出字幕文件格式&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                               </property>
                                <item>
                                 <property name="text">
                                  <string>srt</string>
@@ -2815,6 +2821,67 @@ background-repeat: no-repeat;</string>
                                <item>
                                 <property name="text">
                                  <string>vtt</string>
+                                </property>
+                               </item>
+                              </widget>
+                             </item>
+                            </layout>
+                           </item>
+                           <item>
+                            <layout class="QVBoxLayout" name="verticalLayout_18">
+                             <item>
+                              <widget class="QLabel" name="label_14">
+                               <property name="styleSheet">
+                                <string notr="true">color: rgb(113, 126, 149);font-size: 18px;</string>
+                               </property>
+                               <property name="text">
+                                <string>模型大小</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QComboBox" name="autoTitle_comboBox_modelSize">
+                               <property name="toolTip">
+                                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;选择模型大小，后缀带 en 表示仅支持英文识别模型。如果目录下没有模型会自动从网络下载，下载时间较长请耐心等待。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                               </property>
+                               <item>
+                                <property name="text">
+                                 <string>tiny</string>
+                                </property>
+                               </item>
+                               <item>
+                                <property name="text">
+                                 <string>tiny.en</string>
+                                </property>
+                               </item>
+                               <item>
+                                <property name="text">
+                                 <string>base</string>
+                                </property>
+                               </item>
+                               <item>
+                                <property name="text">
+                                 <string>base.en</string>
+                                </property>
+                               </item>
+                               <item>
+                                <property name="text">
+                                 <string>small</string>
+                                </property>
+                               </item>
+                               <item>
+                                <property name="text">
+                                 <string>small.en</string>
+                                </property>
+                               </item>
+                               <item>
+                                <property name="text">
+                                 <string>medium</string>
+                                </property>
+                               </item>
+                               <item>
+                                <property name="text">
+                                 <string>medium.en</string>
                                 </property>
                                </item>
                               </widget>
@@ -3164,7 +3231,7 @@ background-repeat: no-repeat;</string>
                 <item>
                  <widget class="QLabel" name="version">
                   <property name="text">
-                   <string>v0.2.2</string>
+                   <string>v0.2.1</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

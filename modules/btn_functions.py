@@ -19,8 +19,10 @@ from .whisper.model import load_model
 from .whisper.utils import write_srt, write_txt, write_vtt
 
 
-DONE = "done" # 表示任务完成
-CANCEL = "cancel" # 表示任务被取消
+DONE = "任务完成" # 表示任务完成
+CANCEL = "任务取消" # 表示任务被取消
+START_BTN = "运行命令" # 按钮显示字
+END_BTN = "取消命令" # 按钮显示字
 MAX_LOG_LENGTH = 8 # log 最长展示行数
 
 # 监控线程模块
@@ -395,7 +397,7 @@ class SubTitleRunner(QThread):
         )
         if not self.g_cancel_signal[0]:
             # 任务取消，就不需要保存现有的文件
-            self.finishSignal.emit("任务取消")
+            self.finishSignal.emit(CANCEL)
             return
         l_audio_base = os.path.basename(l_audio_path)
         if self.g_output_ext == "txt":
@@ -427,7 +429,7 @@ class SubTitleRunner(QThread):
             string += i + "\n"
         self.finishSignal.emit(string)
 
-    def close(self):
+    def close(self, info=None):
         """
         关闭本监控线程，核心是退出run中的transcribe函数调用。
         """
@@ -859,7 +861,7 @@ class ConvertVideoFactory(QWidget):
         # 先终止前面未运行完的任务，然后恢复先前的指令
         if self.thread1:
             self.closeThread()
-            self.widgets.btn_command_run.setText("运行命令")
+            self.widgets.btn_command_run.setText(START_BTN)
             self.updateCommandText()
             return
         # 单个文件处理
@@ -890,7 +892,7 @@ class ConvertVideoFactory(QWidget):
         # 启动线程
         self.thread1.finishSignal.connect(self.runCommandTextShow)
         self.thread1.start()
-        self.widgets.btn_command_run.setText("取消命令")
+        self.widgets.btn_command_run.setText(END_BTN)
         # 保存本次运行的路径，方便下次快速使用
         with open(os.path.join(self.absPath, "..", "config.json"), "w") as f:
             json.dump(self.g_dict_Cache, f, indent=4)
@@ -907,7 +909,7 @@ class ConvertVideoFactory(QWidget):
         """
         if signal_str == DONE or signal_str == CANCEL:
             self.closeThread()
-            self.widgets.btn_command_run.setText("运行命令")
+            self.widgets.btn_command_run.setText(START_BTN)
             
         self.widgets.output_command_Edit.setPlainText(signal_str)
 
@@ -972,7 +974,7 @@ class AutoCutFactory(QWidget):
         """
         if self.thread1 is not None:
             self.closeThread()
-            self.widgets.autoCut_run_Btn.setText("运行命令")
+            self.widgets.autoCut_run_Btn.setText(START_BTN)
             self.updateCommandText()
             return
         l_home_dir = self.widgets.autoCut_input_Edit.toPlainText()
@@ -987,7 +989,7 @@ class AutoCutFactory(QWidget):
         # 保存缓存
         with open(os.path.join(self.absPath, "..", "config.json"), "w") as f:
             json.dump(self.g_dict_Cache, f, indent=4)
-        self.widgets.autoCut_run_Btn.setText("取消命令")
+        self.widgets.autoCut_run_Btn.setText(END_BTN)
 
     def updateCommandText(self):
         """
@@ -1100,7 +1102,7 @@ class AutoSubtitleFactory(QWidget):
         """
         选择字幕语言
         """
-        self.args.update({"language": self.widgets.autoTitle_comboBox.currentText()})
+        self.args["language"] = self.widgets.autoTitle_comboBox.currentText()
         self.updateCommandText()
 
     def selectSubTitleExt(self):
@@ -1108,6 +1110,13 @@ class AutoSubtitleFactory(QWidget):
         选择输出字幕格式
         """
         self.args["output_ext"] = self.widgets.autoTitle_comboBox2.currentText()
+        self.updateCommandText()
+
+    def selectModelSize(self):
+        """
+        选择模型大小
+        """
+        self.args["model"] = self.widgets.autoTitle_comboBox_modelSize.currentText()
         self.updateCommandText()
 
     def runCommand(self):
@@ -1118,17 +1127,18 @@ class AutoSubtitleFactory(QWidget):
         if self.thread1 is not None:
             self.closeThread()
             self.updateCommandText()
-            self.widgets.autoTitle_run_Btn.setText("运行命令")
+            self.widgets.autoTitle_run_Btn.setText(START_BTN)
             return
         # 创建新监控进程
         self.thread1 = SubTitleRunner(self.args.copy())
         # 设置新监控进程的数据信息
         self.thread1.finishSignal.connect(self.updateCommandText)
         self.thread1.start()
+
         # 保存缓存
         with open(os.path.join(self.absPath, "..", "config.json"), "w") as f:
             json.dump(self.g_dict_Cache, f, indent=4)
-        self.widgets.autoTitle_run_Btn.setText("取消命令")
+        self.widgets.autoTitle_run_Btn.setText(END_BTN)
 
     def updateCommandText(self, i_text=None):
         """
@@ -1146,4 +1156,7 @@ class AutoSubtitleFactory(QWidget):
             string += "输出位置 : " + self.args["output_dir"] + "\n"
             string += "字幕格式 : " + self.args["output_ext"] + "\n"
             string += "字幕语言 : " + self.args["language"] + "\n"
+            string += "选择模型 : " + self.args["model"] + "\n"
+        elif string == DONE:
+            self.widgets.autoTitle_run_Btn.setText(START_BTN)
         self.widgets.autoTitle_output_Edit.setPlainText(string)

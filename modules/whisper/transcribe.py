@@ -103,6 +103,9 @@ def transcribe(
     decode_options: dict
         Keyword arguments to construct `DecodingOptions` instances
 
+    cancel: list[bool]
+        signal to stop the runing transcribe task. 传递取消任务的信号
+
     signal_return: QtCore.Signal
         return the process information
 
@@ -137,7 +140,7 @@ def transcribe(
             best_of = kwargs.get("best_of", None)
 
         options = DecodingOptions(**kwargs, temperature=t)
-        results = model.decode(segment, options)
+        results = model.decode(segment, options, cancel)
 
         kwargs.pop("beam_size", None)  # no beam search for t > 0
         kwargs.pop("patience", None)  # no patience for t > 0
@@ -281,7 +284,7 @@ def transcribe(
 
     return dict(text=tokenizer.decode(all_tokens[len(initial_prompt):]), segments=all_segments, language=language)
 
-
+'''
 def cli():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--mode", type=str, default="audio", choices=["audio", "mic"], help="Audio file(audio) or Microphone(mic)")
@@ -392,7 +395,7 @@ def cli():
     #     except KeyboardInterrupt:
     #         # allow CTRL + C to exit the application
     #         pass
-
+'''
 
 class SubTitleRunner():
     """
@@ -463,7 +466,7 @@ if __name__ == '__main__':
     # cli()
     args = {
             "mode": "audio",
-            "audio": "E:/FFOutput/RISV中国峰会.mkv", # 必须指定配字幕文件名
+            "audio": "E:/FFOutput/\u4e2d\u5c71\u5927\u5b66PPT\u5236\u4f5c\u5206\u4eab_01-11_15-23-43.mp3", # 必须指定配字幕文件名
             "model": "tiny", # [tiny, base, small, medium]
             "output_dir": ".", # 输出位置
             "output_ext": "srt", # 输出格式 srt, vtt, txt 三选一

@@ -457,8 +457,9 @@ class DecodingTask:
     decoder: TokenDecoder
     logit_filters: List[LogitFilter]
 
-    def __init__(self, model: "Whisper", options: DecodingOptions):
+    def __init__(self, model: "Whisper", options: DecodingOptions, cancel: list[bool]):
         self.model = model
+        self.cancel = cancel # 任务取消信号，False 表示取消当前正在解码的任务
 
         language = options.language or "en"
         tokenizer = get_tokenizer(model.is_multilingual, language=language, task=options.task)
@@ -593,6 +594,8 @@ class DecodingTask:
 
         try:
             for i in range(self.sample_len):
+                if not self.cancel[0]:
+                    break
                 logits = self.inference.logits(tokens, audio_features)
 
                 if i == 0 and self.tokenizer.no_speech is not None:  # save no_speech_probs
@@ -681,7 +684,7 @@ class DecodingTask:
         ]
 
 
-def decode(model: "Whisper", mel: np.ndarray, options: DecodingOptions = DecodingOptions()) -> Union[DecodingResult, List[DecodingResult]]:
+def decode(model: "Whisper", mel: np.ndarray, options: DecodingOptions = DecodingOptions(), cancel:list[bool]=[False]) -> Union[DecodingResult, List[DecodingResult]]:
     """
     Performs decoding of 30-second audio segment(s), provided as Mel spectrogram(s).
 
@@ -705,7 +708,7 @@ def decode(model: "Whisper", mel: np.ndarray, options: DecodingOptions = Decodin
     if single:
         mel = mel[np.newaxis, ...]
 
-    result = DecodingTask(model, options).run(mel)
+    result = DecodingTask(model, options, cancel).run(mel)
 
     if single:
         result = result[0]

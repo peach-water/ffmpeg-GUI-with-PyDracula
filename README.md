@@ -66,19 +66,19 @@ python3 main.py
 ```console
 pyinstaller -Dw ./main.py --copy-metadata tqdm --copy-metadata regex --copy-metadata requests --copy-metadata packaging --copy-metadata filelock --copy-metadata numpy --copy-metadata tokenizers --copy-metadata huggingface-hub --copy-metadata safetensors --copy-metadata pyyaml
 ```
-在那之前还需要使用命令 pip install pyinstaller==5.13 来安装打包环境。
+> transformers库打包需要这一溜的metadata数据才可以正常运行，所以需要加上。
+
+在那之前还需要使用命令 pip install pyinstaller==6.3.0 来安装打包环境。
 更新的pyinstaller没有尝试。
 编译成功后，在当前目录下可以找到"./dist/main/main.exe"文件，在启动之前还需要复制theme主题文件到"./dist/main"，否则会因为找不到主题文件报错。类似的还有：
-* 复制model文件到'./dist/main'目录下，自动剪辑功能需要这个模型。
-* 复制modules/whisper/assets文件夹到'./dist/main/modules/whisper'目录下，配字幕需要这个功能
-
-> transformers库打包需要这一溜的metadata数据才可以正常运行，所以需要加上。
+* 复制model文件到'./dist/main/_internal'目录下，自动剪辑和自动配字幕功能需要这个模型。
+* 复制modules/whisper/文件夹到'./dist/main/modules/'目录下，配字幕需要这个功能
 
 ## 错误修复
 
 ### pyinstaller 打包时错误
 
-打包python3.10出现tuple index out of range 错误，去python可执行文件位置找到 './Lib/dis.py' 修改 '_unpack_opargs' 函数为如下
+如果打包python3.10出现 `tuple index out of range` 错误，去python可执行文件位置找到 `./Lib/dis.py` 修改 `_unpack_opargs` 函数为如下
 ```python
 def _unpack_opargs(code):
     extended_arg = 0

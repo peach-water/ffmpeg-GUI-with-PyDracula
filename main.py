@@ -170,6 +170,7 @@ class MainWindow(QMainWindow):
                 # 设置主页按钮功能
                 widgets.autoTitle_comboBox.activated.connect(self.AutoTitle.selectLanguage)
                 widgets.autoTitle_comboBox2.activated.connect(self.AutoTitle.selectSubTitleExt)
+                widgets.autoTitle_comboBox_modelSize.activated.connect(self.AutoTitle.selectModelSize)
                 widgets.autoTitle_input_Btn.clicked.connect(self.AutoTitle.selectFile)
                 widgets.autoTitle_input2_Btn.clicked.connect(self.AutoTitle.selectDirectory)
                 widgets.autoTitle_run_Btn.clicked.connect(self.AutoTitle.runCommand)

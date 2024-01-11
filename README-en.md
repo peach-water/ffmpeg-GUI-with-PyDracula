@@ -65,14 +65,14 @@ pyinstaller -Dw ./main.py --copy-metadata tqdm --copy-metadata regex --copy-meta
 ```
 
 After successful compilation, the "./dist/main/main.exe" file can be found in the current directory, and you need to copy the theme directory to "./dist/main" before starting, otherwise an error will be reported because the theme file cannot be found. Follows similarly:
-* Copy the model directory to the './dist/main' directory, which is required for auto cut.
-* Copy the modules/whisper/assets folder to the './dist/main/modules/whisper' directory, this feature is required for subtitles.
+* Copy the model directory to the './dist/main/_internal' directory, which is required by auto cut and auto subtitle function.
+* Copy the modules/whisper/ folder to the './dist/main/modules/' directory, this file is required by subtitles.
 
 ## Error Fix
 
 ### Build error
 
-error info `tuple index out of range` raised when build with pyinstaller under the python3.10.
+if error info `tuple index out of range` raised when build with pyinstaller under the python3.10.
 Please modify the function `_unpack_opargs` from file `src/python3.10/Lib/dis.py` as follows.
 
 ```python
@@ -157,7 +157,7 @@ After expoting in .py and change the line "import resources_rc" to "from. Resouc
 > To participate create a "Issue" with the name beginning with "#pydracula_project", leaving the link of your project on Github, name of the creator and what is its functionality. Your project will be added and this list will be deleted from "Issue".
 **Malicious programs will not be added**!
 
-# Thanks
+# Acknowledgment
 
 > This Project is modified from https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6 .
 

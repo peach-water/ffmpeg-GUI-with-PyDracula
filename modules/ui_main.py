@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainnINDan.ui'
+## Form generated from reading UI file 'mainWKfdnw.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.5.2
 ##
@@ -1429,10 +1429,10 @@ class Ui_MainWindow(object):
         self.stackedWidget.addWidget(self.auto_cut_page)
         self.auto_subtitle_page = QWidget()
         self.auto_subtitle_page.setObjectName(u"auto_subtitle_page")
-        self.verticalLayout_19 = QVBoxLayout(self.auto_subtitle_page)
+        self.verticalLayout_32 = QVBoxLayout(self.auto_subtitle_page)
+        self.verticalLayout_32.setObjectName(u"verticalLayout_32")
+        self.verticalLayout_19 = QVBoxLayout()
         self.verticalLayout_19.setObjectName(u"verticalLayout_19")
-        self.verticalLayout_18 = QVBoxLayout()
-        self.verticalLayout_18.setObjectName(u"verticalLayout_18")
         self.horizontalLayout_19 = QHBoxLayout()
         self.horizontalLayout_19.setObjectName(u"horizontalLayout_19")
         self.verticalLayout_38 = QVBoxLayout()
@@ -1462,7 +1462,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_19.addWidget(self.autoTitle_input_Btn)
 
 
-        self.verticalLayout_18.addLayout(self.horizontalLayout_19)
+        self.verticalLayout_19.addLayout(self.horizontalLayout_19)
 
         self.horizontalLayout_9 = QHBoxLayout()
         self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
@@ -1493,7 +1493,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_9.addWidget(self.autoTitle_input2_Btn)
 
 
-        self.verticalLayout_18.addLayout(self.horizontalLayout_9)
+        self.verticalLayout_19.addLayout(self.horizontalLayout_9)
 
         self.horizontalLayout_11 = QHBoxLayout()
         self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
@@ -1534,23 +1534,47 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_11.addLayout(self.verticalLayout_17)
 
+        self.verticalLayout_18 = QVBoxLayout()
+        self.verticalLayout_18.setObjectName(u"verticalLayout_18")
+        self.label_14 = QLabel(self.auto_subtitle_page)
+        self.label_14.setObjectName(u"label_14")
+        self.label_14.setStyleSheet(u"color: rgb(113, 126, 149);font-size: 18px;")
 
-        self.verticalLayout_18.addLayout(self.horizontalLayout_11)
+        self.verticalLayout_18.addWidget(self.label_14)
+
+        self.autoTitle_comboBox_modelSize = QComboBox(self.auto_subtitle_page)
+        self.autoTitle_comboBox_modelSize.addItem("")
+        self.autoTitle_comboBox_modelSize.addItem("")
+        self.autoTitle_comboBox_modelSize.addItem("")
+        self.autoTitle_comboBox_modelSize.addItem("")
+        self.autoTitle_comboBox_modelSize.addItem("")
+        self.autoTitle_comboBox_modelSize.addItem("")
+        self.autoTitle_comboBox_modelSize.addItem("")
+        self.autoTitle_comboBox_modelSize.addItem("")
+        self.autoTitle_comboBox_modelSize.setObjectName(u"autoTitle_comboBox_modelSize")
+
+        self.verticalLayout_18.addWidget(self.autoTitle_comboBox_modelSize)
+
+
+        self.horizontalLayout_11.addLayout(self.verticalLayout_18)
+
+
+        self.verticalLayout_19.addLayout(self.horizontalLayout_11)
 
         self.autoTitle_output_Edit = QPlainTextEdit(self.auto_subtitle_page)
         self.autoTitle_output_Edit.setObjectName(u"autoTitle_output_Edit")
         self.autoTitle_output_Edit.setStyleSheet(u"font-size: 14px;")
 
-        self.verticalLayout_18.addWidget(self.autoTitle_output_Edit)
+        self.verticalLayout_19.addWidget(self.autoTitle_output_Edit)
 
         self.autoTitle_run_Btn = QPushButton(self.auto_subtitle_page)
         self.autoTitle_run_Btn.setObjectName(u"autoTitle_run_Btn")
         self.autoTitle_run_Btn.setMinimumSize(QSize(60, 40))
 
-        self.verticalLayout_18.addWidget(self.autoTitle_run_Btn)
+        self.verticalLayout_19.addWidget(self.autoTitle_run_Btn)
 
 
-        self.verticalLayout_19.addLayout(self.verticalLayout_18)
+        self.verticalLayout_32.addLayout(self.verticalLayout_19)
 
         self.stackedWidget.addWidget(self.auto_subtitle_page)
         self.computer_info = QWidget()
@@ -1878,11 +1902,30 @@ class Ui_MainWindow(object):
         self.autoTitle_comboBox.setItemText(0, QCoreApplication.translate("MainWindow", u"zh", None))
         self.autoTitle_comboBox.setItemText(1, QCoreApplication.translate("MainWindow", u"en", None))
 
+#if QT_CONFIG(tooltip)
+        self.autoTitle_comboBox.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>\u8bc6\u522b\u6587\u672c\uff0c\u5982\u679c\u89c6\u9891\u6216\u97f3\u9891\u8bed\u79cd\u4e0d\u662f\u6307\u5b9a\u8bed\u79cd\uff0c\u8fd8\u4f1a\u8fdb\u884c\u7ffb\u8bd1\u5de5\u4f5c\uff08\u8c28\u614e\u4f7f\u7528\u7ffb\u8bd1\u529f\u80fd\uff09\u3002</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
         self.label_13.setText(QCoreApplication.translate("MainWindow", u"\u5b57\u5e55\u683c\u5f0f", None))
         self.autoTitle_comboBox2.setItemText(0, QCoreApplication.translate("MainWindow", u"srt", None))
         self.autoTitle_comboBox2.setItemText(1, QCoreApplication.translate("MainWindow", u"txt", None))
         self.autoTitle_comboBox2.setItemText(2, QCoreApplication.translate("MainWindow", u"vtt", None))
 
+#if QT_CONFIG(tooltip)
+        self.autoTitle_comboBox2.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>\u8f93\u51fa\u5b57\u5e55\u6587\u4ef6\u683c\u5f0f</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_14.setText(QCoreApplication.translate("MainWindow", u"\u6a21\u578b\u5927\u5c0f", None))
+        self.autoTitle_comboBox_modelSize.setItemText(0, QCoreApplication.translate("MainWindow", u"tiny", None))
+        self.autoTitle_comboBox_modelSize.setItemText(1, QCoreApplication.translate("MainWindow", u"tiny.en", None))
+        self.autoTitle_comboBox_modelSize.setItemText(2, QCoreApplication.translate("MainWindow", u"base", None))
+        self.autoTitle_comboBox_modelSize.setItemText(3, QCoreApplication.translate("MainWindow", u"base.en", None))
+        self.autoTitle_comboBox_modelSize.setItemText(4, QCoreApplication.translate("MainWindow", u"small", None))
+        self.autoTitle_comboBox_modelSize.setItemText(5, QCoreApplication.translate("MainWindow", u"small.en", None))
+        self.autoTitle_comboBox_modelSize.setItemText(6, QCoreApplication.translate("MainWindow", u"medium", None))
+        self.autoTitle_comboBox_modelSize.setItemText(7, QCoreApplication.translate("MainWindow", u"medium.en", None))
+
+#if QT_CONFIG(tooltip)
+        self.autoTitle_comboBox_modelSize.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>\u9009\u62e9\u6a21\u578b\u5927\u5c0f\uff0c\u540e\u7f00\u5e26 en \u8868\u793a\u4ec5\u652f\u6301\u82f1\u6587\u8bc6\u522b\u6a21\u578b\u3002\u5982\u679c\u76ee\u5f55\u4e0b\u6ca1\u6709\u6a21\u578b\u4f1a\u81ea\u52a8\u4ece\u7f51\u7edc\u4e0b\u8f7d\uff0c\u4e0b\u8f7d\u65f6\u95f4\u8f83\u957f\u8bf7\u8010\u5fc3\u7b49\u5f85\u3002</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
         self.autoTitle_run_Btn.setText(QCoreApplication.translate("MainWindow", u"\u5f00\u59cb\u8bc6\u522b", None))
         self.btn_draw.setText(QCoreApplication.translate("MainWindow", u"\u7ed8\u56fe", None))
         self.btn_graphic_clear.setText(QCoreApplication.translate("MainWindow", u"\u6e05\u9664", None))
@@ -1890,6 +1933,6 @@ class Ui_MainWindow(object):
         self.btn_print.setText(QCoreApplication.translate("MainWindow", u"Print", None))
         self.btn_logout.setText(QCoreApplication.translate("MainWindow", u"Logout", None))
         self.creditsLabel.setText(QCoreApplication.translate("MainWindow", u"Peach Water", None))
-        self.version.setText(QCoreApplication.translate("MainWindow", u"v0.2.3", None))
+        self.version.setText(QCoreApplication.translate("MainWindow", u"v0.2.1", None))
     # retranslateUi
 
