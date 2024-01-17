@@ -91,9 +91,15 @@ def get_speech_timestamps(audio,
                           window_size_samples:int = 512,
                           speech_pad_ms: int = 30,
                           return_seconds: bool = False,
-                          progress_tracking_callback: Signal=None):
+                          progress_tracking_callback: Signal=None,
+                          cancel:list=None):
     """
     分割函数，给定音频按照是否有人声进行分割，得到分割后的标记点序列
+
+    Input:
+    ---
+        cancel - (list)
+            传递任务取消的信号，list保证传递引用，True表示不取消
     """
     if len(audio.shape) > 1:
         for i in range(len(audio.shape)):
@@ -139,6 +145,8 @@ def get_speech_timestamps(audio,
                 progress = audio_length_samples
             progress_percent = round((progress / audio_length_samples) * 100, 2)
             progress_tracking_callback.emit(f"处理进度：{str(progress_percent)}/100 %")
+        if not cancel[0]:
+            return []
     
     triggered = False
     speeches = []
@@ -305,21 +313,31 @@ def adjust_timestamp(segments: Iterator[dict], adjust_seconds: float, max_source
         result.append(new_segment)
     return result
 
-def get_transcribe_timestamps(audio: str, start_time: float, end_time: float, progress_tracking_callback: Signal=None):
+def get_transcribe_timestamps(audio: str, start_time: float, end_time: float, progress_tracking_callback: Signal=None, cancel=None):
     """
     分割人声片段
 
-    输入:
-    * audio:      待分割音频文件路径
-    * start_time: 分割起始位置，一般设定是0
-    * end_time:   分割终止位置，一般设定为音频最长时间
+    Input:
+    ---
+        audio - (str)
+            待分割音频文件路径
+        start_time - (float)
+            分割起始位置，一般设定是0
+        end_time - (float)
+            分割终止位置，一般设定为音频最长时间
+        progress_tracking_callback - (Qt.Signal)
+            信号传递槽，向外传递当前转码进度信息
+        cancel - (list(bool))
+            取消信号，使用list保证传引用，False表示取消
 
-    输出:
-    result:     以如下形式返回
-    >>> [{"start": float, "end" : float}, {"start": float, "end": float}] 
+    Output:
+    ---
+        result - (list(dict))
+            以如下形式返回
+            >>> [{"start": float, "end" : float}, {"start": float, "end": float}] 
     """
     result = []
-    model, get_speech_timestamps = create_model()
+    model = create_model()
 
     # print("Getting timestamps from audio file: {}, start: {}, duration: {}".format(audio, start_time, end_time))
     perf_start_time = time.perf_counter()
@@ -333,7 +351,7 @@ def get_transcribe_timestamps(audio: str, start_time: float, end_time: float, pr
         print(f"Processing VAD in chunk from {format_timestamp(chunk_start)} to {format_timestamp(chunk_duration+chunk_start)}")
 
         wav = load_audio(audio, 16000, str(chunk_start), str(chunk_duration)) # 从音频文件切分start和duration长度的片段
-        sample_timestamps = get_speech_timestamps(wav, model, sampling_rate=16000, threshold=SPEECH_TRESHOLD, progress_tracking_callback=progress_tracking_callback) # 调用creat_model构建的模型
+        sample_timestamps = get_speech_timestamps(wav, model, sampling_rate=16000, threshold=SPEECH_TRESHOLD, progress_tracking_callback=progress_tracking_callback, cancel=cancel) # 调用creat_model构建的模型
         seconds_timestamps = multiply_timestamps(sample_timestamps, factor=1 / 16000)  # 计算实际位置，乘以采样率得到时间
         adjusted = adjust_timestamp(seconds_timestamps, adjust_seconds=chunk_start, max_source_time=chunk_start + chunk_duration) # 按照chunk分块计算偏移，每个chunk最长只有1小时
 
@@ -349,10 +367,9 @@ def create_model():
     import os
     absPath = os.path.dirname(os.path.abspath(__file__))
     absPath = os.path.join(absPath, "../model/silero_vad.onnx").replace("\\", "/")
-    print(absPath)
 
     model = OnnxWrapper(absPath)
-    return model, get_speech_timestamps
+    return model
 
 def load_audio(file: str, sample_rate: int = 16000, 
                start_time: str = None, duration: str = None):

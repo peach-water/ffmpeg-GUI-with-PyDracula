@@ -120,11 +120,13 @@ class VideoConvert(QThread):
                 self.finishSignal.emit("Error:\t" + l_info.split("\n")[-2])
                 # 在终端打印错误信息
                 print(l_info)
-            elif self.thread1.returncode == 0:
+            elif self.thread1.returncode in [0, None]:
                 # 转码成功
                 self.finishSignal.emit(DONE)
             else:
+                # 其他意料之外的事情，理论上这里不应该会被执行
                 self.finishSignal.emit(l_info)
+                print("videoconvert class 不应该执行到这里")
             return 
 
         # 批处理模式
@@ -144,7 +146,7 @@ class VideoConvert(QThread):
                              stdout=subprocess.PIPE, 
                              stdin=subprocess.PIPE,
                              stderr=subprocess.PIPE,
-                             shell=False, 
+                             shell=False,
                              universal_newlines=True,
                              encoding="utf-8"
                             )
@@ -157,7 +159,7 @@ class VideoConvert(QThread):
                 # 表示任务已经取消
                 self.finishSignal.emit(CANCEL)
                 return
-            elif self.thread1.returncode != 0:
+            elif self.thread1.returncode not in [0, None]:
                 l_process_failure_file.append(lo_file + "\t:\t" + lo_file.split("\n")[-2])
             l_count += 1
             self.thread1.wait()
@@ -178,7 +180,7 @@ class VideoConvert(QThread):
             self.thread1.terminate()
             self.thread1.wait()
             self.thread1 = None
-        self.exit(0)
+        self.deleteLater()
 
 def formatTimeToSecond(time: str) -> float:
     """
@@ -265,25 +267,33 @@ class VADRunner(QThread):
     def __init__(self, i_file:str=None, i_output_dir:str=None, parent=None):
         super(VADRunner, self).__init__(parent)
         if i_file is None:
-            raise ValueError(f"No file input")
+            raise RuntimeError(f"No file input")
         self.g_file = i_file
         if i_output_dir is None:
-            raise ValueError(f"no output diectory")
+            raise RuntimeError(f"no output diectory")
         self.g_output_dir = i_output_dir
         self.thread1 = None
-        
+        self.g_cancel_signal = [True] # 用来结束get_transcribe_timestamps函数调用，取消任务。使用list数据类型可以保证参数引用而不是值引用。TODO需要更高级的实现方式。
+
     def run(self):
         """
         利用模型得到分割时间戳
         """
         from . vad_functions import get_transcribe_timestamps, get_audio_duration
         
-        result = get_transcribe_timestamps(
-            audio=self.g_file,
-            start_time=0,
-            end_time=get_audio_duration(self.g_file),
-            progress_tracking_callback=self.processSignal
-        )
+        try:
+            result = get_transcribe_timestamps(
+                audio=self.g_file,
+                start_time=0,
+                end_time=get_audio_duration(self.g_file),
+                progress_tracking_callback=self.processSignal,
+                cancel=self.g_cancel_signal
+            )
+        except ffmpeg._run.Error as e:
+            self.finishSignal.emit(str(e) + "\tmaybe no vaild input file")
+        if not self.g_cancel_signal[0]:
+            self.finishSignal.emit(CANCEL)
+            return
         self.autoCutVideo(result)
 
     def autoCutVideo(self, slice_dict: list):  
@@ -305,6 +315,8 @@ class VADRunner(QThread):
         l_fileHome = os.path.dirname(self.g_file)
 
         for i, timestamp in enumerate(slice_dict):
+            if not self.g_cancel_signal[0]:
+                break
             # 这里在生成分割视频的指令
             start = format_timestamp(timestamp["start"], True, ".")
             end = format_timestamp(timestamp["end"], True, ".")
@@ -322,25 +334,25 @@ class VADRunner(QThread):
                             universal_newlines=True,
                             encoding="utf-8"
                         )
-            l_runner = commandRunner(self.thread1, buffer=8)
+            l_runner = commandRunner(self.thread1, buffer=MAX_LOG_LENGTH)
 
             for res in l_runner:
                 res += "处理进度 %4d/%4d" % (i+1, len(slice_dict))
                 self.finishSignal.emit(res)
-            self.thread1.wait()
 
-        self.close()
         self.finishSignal.emit(DONE)
     
     def close(self):
         """
         实际是关闭干事的子进程，这个类本身是一个监控进程。
         """
+        self.g_cancel_signal[0] = False
         if self.thread1 is not None:
             self.thread1.terminate()
             self.thread1.wait()
             self.thread1 = None
-        self.terminate()
+        self.finishSignal.emit(CANCEL)
+        pass
 
 class SubTitleRunner(QThread):
     """
@@ -387,14 +399,19 @@ class SubTitleRunner(QThread):
         开始任务，重载 qthread 的 run 方法
         """
         l_audio_path = self.args.pop("audio")
-        result = transcribe(
-            model=self.g_model,
-            audio=l_audio_path,
-            temperature=self.g_temperature,
-            signal_return=self.processSignal,
-            cancel=self.g_cancel_signal,
-            **self.args
-        )
+        try:
+            result = transcribe(
+                model=self.g_model,
+                audio=l_audio_path,
+                temperature=self.g_temperature,
+                signal_return=self.processSignal,
+                cancel=self.g_cancel_signal,
+                **self.args
+            )
+        except RuntimeError as e:
+            self.finishSignal.emit(str(e))
+            return
+
         if not self.g_cancel_signal[0]:
             # 任务取消，就不需要保存现有的文件
             self.finishSignal.emit(CANCEL)
@@ -460,6 +477,24 @@ def readCacheFile():
         with open(os.path.join(l_absPath, "..", "config.json"), "r") as f:
             l_fileName = json.load(f)
     return l_absPath, l_fileName
+
+def saveCacheFile(cache:dict):
+    """
+    保存上次操作的缓存数据
+
+    Input:
+    ---
+        cache - (dict)
+            字典类型的缓存信息
+    
+    Output:
+    ---
+        None
+    """
+    l_absPath = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(l_absPath, "..", "config.json"), "w") as f:
+        json.dump(cache, f, indent=4)
+    return 
 
 class CPUInfoCaptureFactory():
     def __init__(self, graphicsView):
@@ -847,6 +882,7 @@ class ConvertVideoFactory(QWidget):
             self.g_convert_Mode["-vf \"subtitles="] = "\'" + l_input_Edit2.replace(":","\\:") + "\'\""
         # 最后是处理速度和默认覆盖原文件
         l_command["-preset"] = " "+self.g_preset_Mode 
+        # 剩下的其他固定指令
         for i in self.g_convert_Mode.keys():
             l_command[i] = self.g_convert_Mode[i]
         l_control_command = ""
@@ -872,7 +908,12 @@ class ConvertVideoFactory(QWidget):
             self.thread1 = VideoConvert()
             self.thread1.command = self.widgets.output_command_Edit.toPlainText()
             # 创建Qthread监控线程执行转码任务
-            self.thread1.duration = float(ffmpeg.probe(self.widgets.input_Edit1.toPlainText())["format"]["duration"])
+            try:
+                self.thread1.duration = float(ffmpeg.probe(self.widgets.input_Edit1.toPlainText())["format"]["duration"])
+            except ffmpeg._run.Error as e:
+                print("ERROR:\t" + str(e))
+                self.widgets.btn_command_run.setText(END_BTN)
+                return
 
         else:
             l_output_Dir = self.widgets.input_Edit3.toPlainText()
@@ -894,11 +935,9 @@ class ConvertVideoFactory(QWidget):
         self.thread1.start()
         self.widgets.btn_command_run.setText(END_BTN)
         # 保存本次运行的路径，方便下次快速使用
-        with open(os.path.join(self.absPath, "..", "config.json"), "w") as f:
-            json.dump(self.g_dict_Cache, f, indent=4)
-        
+        saveCacheFile(self.g_dict_Cache)
     
-    def runCommandTextShow(self, signal_str):
+    def runCommandTextShow(self, signal_str:str):
         """
         在命令框展示运行结果
         
@@ -907,7 +946,7 @@ class ConvertVideoFactory(QWidget):
             stgnal_str - (str)
                 需要展示的信息
         """
-        if signal_str == DONE or signal_str == CANCEL:
+        if signal_str == DONE:
             self.closeThread()
             self.widgets.btn_command_run.setText(START_BTN)
             
@@ -987,8 +1026,7 @@ class AutoCutFactory(QWidget):
         self.thread1.start()
     
         # 保存缓存
-        with open(os.path.join(self.absPath, "..", "config.json"), "w") as f:
-            json.dump(self.g_dict_Cache, f, indent=4)
+        saveCacheFile(self.g_dict_Cache)
         self.widgets.autoCut_run_Btn.setText(END_BTN)
 
     def updateCommandText(self):
@@ -997,7 +1035,7 @@ class AutoCutFactory(QWidget):
         """
         return
 
-    def runCommandTextShow(self, str_signal):
+    def runCommandTextShow(self, str_signal:str):
         """
         在文本框展示程序运行进度和运行结果
 
@@ -1006,7 +1044,11 @@ class AutoCutFactory(QWidget):
             str_signal - (str)
                 需要展示的信息
         """
-        self.widgets.autoCut_output_Edit.setPlainText(str_signal)
+        string = str_signal
+        if string == DONE:
+            self.closeThread()
+            self.widgets.autoCut_run_Btn.setText(START_BTN)
+        self.widgets.autoCut_output_Edit.setPlainText(string)
 
 class AutoSubtitleFactory(QWidget):
     """
@@ -1078,7 +1120,7 @@ class AutoSubtitleFactory(QWidget):
             self.widgets.autoTitle_input2_Edit.setPlainText(l_home_dir)
             self.args["output_dir"] = l_home_dir
             self.g_dict_Cache["OutputDirName"] = l_home_dir
-        self.updateCommandText()
+        self.showCurrentInformation()
         self.g_dict_Cache["fileName"] = l_fileName
 
     def selectDirectory(self):
@@ -1095,7 +1137,7 @@ class AutoSubtitleFactory(QWidget):
         
         self.widgets.autoTitle_input2_Edit.setPlainText(l_fileName)
         self.args["output_dir"] = l_fileName
-        self.updateCommandText()
+        self.showCurrentInformation()
         self.g_dict_Cache["OutputDirName"] = l_fileName
 
     def selectLanguage(self):
@@ -1103,21 +1145,33 @@ class AutoSubtitleFactory(QWidget):
         选择字幕语言
         """
         self.args["language"] = self.widgets.autoTitle_comboBox.currentText()
-        self.updateCommandText()
+        self.showCurrentInformation()
 
     def selectSubTitleExt(self):
         """
         选择输出字幕格式
         """
         self.args["output_ext"] = self.widgets.autoTitle_comboBox2.currentText()
-        self.updateCommandText()
+        self.showCurrentInformation()
 
     def selectModelSize(self):
         """
         选择模型大小
         """
         self.args["model"] = self.widgets.autoTitle_comboBox_modelSize.currentText()
-        self.updateCommandText()
+        self.showCurrentInformation()
+
+    def showCurrentInformation(self):
+        """
+        展示当前选择的whisper配置
+        """
+        string = ""
+        string += "输入文件 : " + self.args["audio"] + "\n"
+        string += "输出位置 : " + self.args["output_dir"] + "\n"
+        string += "字幕格式 : " + self.args["output_ext"] + "\n"
+        string += "字幕语言 : " + self.args["language"] + "\n"
+        string += "选择模型 : " + self.args["model"] + "\n"
+        self.updateCommandText(string)
 
     def runCommand(self):
         """
@@ -1126,7 +1180,7 @@ class AutoSubtitleFactory(QWidget):
         # 先结束之前的进程
         if self.thread1 is not None:
             self.closeThread()
-            self.updateCommandText()
+            self.showCurrentInformation()
             self.widgets.autoTitle_run_Btn.setText(START_BTN)
             return
         # 创建新监控进程
@@ -1136,8 +1190,7 @@ class AutoSubtitleFactory(QWidget):
         self.thread1.start()
 
         # 保存缓存
-        with open(os.path.join(self.absPath, "..", "config.json"), "w") as f:
-            json.dump(self.g_dict_Cache, f, indent=4)
+        saveCacheFile(self.g_dict_Cache)
         self.widgets.autoTitle_run_Btn.setText(END_BTN)
 
     def updateCommandText(self, i_text=None):
@@ -1150,13 +1203,7 @@ class AutoSubtitleFactory(QWidget):
                 需要显示的内容
         """
         string = i_text
-        if string is None:
-            string = ""
-            string += "输入文件 : " + self.args["audio"] + "\n"
-            string += "输出位置 : " + self.args["output_dir"] + "\n"
-            string += "字幕格式 : " + self.args["output_ext"] + "\n"
-            string += "字幕语言 : " + self.args["language"] + "\n"
-            string += "选择模型 : " + self.args["model"] + "\n"
-        elif string == DONE:
+        if string == DONE:
+            self.closeThread()
             self.widgets.autoTitle_run_Btn.setText(START_BTN)
         self.widgets.autoTitle_output_Edit.setPlainText(string)
