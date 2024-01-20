@@ -1881,7 +1881,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                       <string notr="true">background: transparent;</string>
                      </property>
                      <property name="currentIndex">
-                      <number>5</number>
+                      <number>4</number>
                      </property>
                      <widget class="QWidget" name="home">
                       <property name="styleSheet">
@@ -2402,6 +2402,19 @@ background-repeat: no-repeat;</string>
                              </property>
                             </widget>
                            </item>
+                           <item>
+                            <widget class="QProgressBar" name="progressBar">
+                             <property name="maximumSize">
+                              <size>
+                               <width>16777215</width>
+                               <height>0</height>
+                              </size>
+                             </property>
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                            </widget>
+                           </item>
                           </layout>
                          </item>
                          <item>
@@ -2616,6 +2629,16 @@ background-repeat: no-repeat;</string>
                           <widget class="QPlainTextEdit" name="autoCut_output_Edit">
                            <property name="styleSheet">
                             <string notr="true">font-size: 14px;</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QProgressBar" name="autoCut_progressBar">
+                           <property name="maximumSize">
+                            <size>
+                             <width>16777215</width>
+                             <height>0</height>
+                            </size>
                            </property>
                           </widget>
                          </item>

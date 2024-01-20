@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainWKfdnw.ui'
+## Form generated from reading UI file 'mainudFOFZ.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.5.2
 ##
@@ -18,9 +18,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFrame,
     QGridLayout, QHBoxLayout, QLabel, QListWidget,
-    QListWidgetItem, QMainWindow, QPlainTextEdit, QPushButton,
-    QSizePolicy, QSlider, QStackedWidget, QTextEdit,
-    QVBoxLayout, QWidget)
+    QListWidgetItem, QMainWindow, QPlainTextEdit, QProgressBar,
+    QPushButton, QSizePolicy, QSlider, QStackedWidget,
+    QTextEdit, QVBoxLayout, QWidget)
 import resources_rc
 
 class Ui_MainWindow(object):
@@ -1293,6 +1293,13 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_27.addWidget(self.output_command_Edit)
 
+        self.progressBar = QProgressBar(self.convert_video)
+        self.progressBar.setObjectName(u"progressBar")
+        self.progressBar.setMaximumSize(QSize(16777215, 0))
+        self.progressBar.setOrientation(Qt.Horizontal)
+
+        self.verticalLayout_27.addWidget(self.progressBar)
+
 
         self.verticalLayout_28.addLayout(self.verticalLayout_27)
 
@@ -1416,6 +1423,12 @@ class Ui_MainWindow(object):
         self.autoCut_output_Edit.setStyleSheet(u"font-size: 14px;")
 
         self.verticalLayout_35.addWidget(self.autoCut_output_Edit)
+
+        self.autoCut_progressBar = QProgressBar(self.auto_cut_page)
+        self.autoCut_progressBar.setObjectName(u"autoCut_progressBar")
+        self.autoCut_progressBar.setMaximumSize(QSize(16777215, 0))
+
+        self.verticalLayout_35.addWidget(self.autoCut_progressBar)
 
         self.autoCut_run_Btn = QPushButton(self.auto_cut_page)
         self.autoCut_run_Btn.setObjectName(u"autoCut_run_Btn")
@@ -1745,7 +1758,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(5)
+        self.stackedWidget.setCurrentIndex(4)
 
 
         QMetaObject.connectSlotsByName(MainWindow)

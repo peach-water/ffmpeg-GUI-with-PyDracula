@@ -144,7 +144,7 @@ def get_speech_timestamps(audio,
             if progress > audio_length_samples:
                 progress = audio_length_samples
             progress_percent = round((progress / audio_length_samples) * 100, 2)
-            progress_tracking_callback.emit(f"处理进度：{str(progress_percent)}/100 %")
+            progress_tracking_callback.emit(int(progress_percent))
         if not cancel[0]:
             return []
     
