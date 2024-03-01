@@ -137,11 +137,17 @@ def _configure has already_library_root_logger() -> None:
 
 > **modules/app_funtions.py**: add your application's functions here.
 
+> **modules/app_settings.py**: global variables to configure user interface.
+
+> **modules/auto_cut.py**: auto cut function implementation.
+
+> **modules/auto_subtitle.py**: Call the whisper subtitle function implement file.
+
 > **modules/btn_functions.py**: Software feature implementation files.
 
-> **modules/vad_functions.py**: Vocal recognition module, from SERR4/SILERO-VAD.
+> **modules/video_convert.py**: Transcode the video.
 
-> **modules/app_settings.py**: global variables to configure user interface.
+> **modules/vad_functions.py**: Vocal recognition module, from SERR4/SILERO-VAD.
 
 > **modules/resources_rc.py**: "resource.qrc" file compiled for python using the command: ```pyside6-rcc resources.qrc -o resources_rc.py```.
 

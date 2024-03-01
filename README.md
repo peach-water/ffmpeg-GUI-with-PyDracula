@@ -143,11 +143,17 @@ def _configure has already_library_root_logger() -> None:
 
 > **modules/app_funtions.py**: 原来的功能实现文件。
 
-> **modules/btn_functions.py**: 软件功能实现文件。
+> **modules/app_settings.py**: 用户交互界面全局设置文件。
+
+> **modules/auto_cut.py**: 自动剪辑功能实现文件。
+
+> **modules/auto_subtitle.py**: 调用whisper配字幕功能实现文件。
+
+> **modules/btn_functions.py**: 软件其他功能实现文件。
+
+> **modules/video_convert.py**: 调用ffmpeg进行视频转码，也是主界面功能实现。
 
 > **modules/vad_functions.py**: 声音识别模块，来自snakers4/silero-vad。
-
-> **modules/app_settings.py**: 用户交互界面全局设置文件。
 
 > **modules/resources_rc.py**: "resource.qrc" 需要使用这条命令编译得到 ```pyside6-rcc resources.qrc -o resources_rc.py```。
 
