@@ -1,4 +1,4 @@
 /build/**
 /dist/**
 __pycache__
-/**.onnx
+/model/**
