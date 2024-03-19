@@ -9,9 +9,8 @@ Currently implemented features:
 * Preview the command on the textbox, and you can modify the command if you learned how to use FFMPEG.
 * Convert video in preset mode
 * Extract videos
-* Double the speed of video
 * Extract audio and save in mp3
-* Batch transcoding
+* Batch transcoding(not include subtitle)
 * Setting transcoding bitrate
 * Setting transcoding speed mode
 * Merge subtitle

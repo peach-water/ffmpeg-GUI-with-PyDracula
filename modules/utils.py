@@ -1,8 +1,23 @@
 import re
 import json
 import os
+import ffmpeg
+import logging
+from logging.handlers import RotatingFileHandler
 
 from PySide6.QtCore import Signal
+
+def logInitialize():
+    """
+    初始化一个日志器
+    """
+    logging.basicConfig(level=logging.INFO)
+    l_log_Handle = RotatingFileHandler("log.txt", maxBytes=1024*1024, backupCount=5)
+    l_formatter = logging.Formatter("%(asctime)s - %(name)s %(levelname)s - %(message)s- from : %(funcName)s,")
+    # 设置日志记录格式
+    l_log_Handle.setFormatter(l_formatter)
+    logging.getLogger().addHandler(l_log_Handle)
+    
 
 def formatTimeToSecond(time: str) -> float:
     """
@@ -55,9 +70,16 @@ def commandRunner(p, duration=None, buffer=4, progressSignal:Signal=None):
         time = re.search(r"\stime=(?P<time>\S+)", line)
         if time and duration:
             line = line[time.start():time.end()].split("=")
-            percent = formatTimeToSecond(line[-1])/duration
-            if progressSignal:
-                progressSignal.emit(int(percent*100))
+            if line[-1] == "N/A":
+                # 经过检查发现出现 N/A 的输出原因是转码任务较容易时ffmpeg处理太快，例如视频只有 1s 。
+                pass
+            else:
+                try:
+                    percent = formatTimeToSecond(line[-1])/duration
+                    if progressSignal:
+                        progressSignal.emit(int(percent*100))
+                except BaseException as e:
+                    logging.error(f"{e}")
             # string += f"\n处理进度：{round(percent*100, ndigits=2)}%\t"
         yield string
         # 老方法
@@ -81,26 +103,6 @@ def commandRunner(p, duration=None, buffer=4, progressSignal:Signal=None):
         #     yield string
         #     l_buffer_str = temp[-1]
         #     l_buffer = p.stdout.read(128)
-
-def formatTimeToSecond(time: str) -> float:
-    """
-    格式化时间 hh:mm:ss.mm 转持续时间。
-
-    Input：
-        time - (str)
-            字符串，格式化的时间
-    Output:
-        seconds - (float)
-            浮点数，返回time对应的秒数
-    """
-    time = time.split(":")
-    h = int(time[0])
-    m = int(time[1])
-    time = time[-1].split(".")
-    s = int(time[0])
-    ms = int(time[1])
-    seconds = (h*60*60) + (m * 60) + s + (ms/100)
-    return seconds
 
 def readCacheFile():
     """
@@ -141,3 +143,31 @@ def saveCacheFile(cache:dict):
     with open(os.path.join(l_absPath, "..", "config.json"), "w") as f:
         json.dump(cache, f, indent=4)
     return 
+
+def getVideoFramsPerSecond(file:str):
+    """
+    获得视频文件的帧率
+
+    Input:
+    ---
+        file - (str)
+            文件位置
+    
+    Output:
+    ---
+        l_fps - (float)
+            帧率
+    """
+    if not os.path.exists(file):
+        print("文件不存在")
+        return
+    try:
+        l_fps = ffmpeg.probe(file)["streams"][0]["avg_frame_rate"]
+        l_fps = eval(l_fps)
+    except ffmpeg.Error as e:
+        logging.debug(f"{file} 无法读取")
+        return 0.0
+    except ZeroDivisionError as e:
+        logging.debug(f"{file} 没有视频信息")
+        return 0.0
+    return l_fps

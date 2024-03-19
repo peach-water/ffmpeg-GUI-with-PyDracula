@@ -115,9 +115,9 @@ class AutoCutFactory(QWidget):
     def __init__(self, widgets) -> None:
         super().__init__()
         self.absPath, self.g_dict_Cache = readCacheFile()
-        if self.g_dict_Cache["fileName"]:
+        if self.g_dict_Cache.get("fileName"):
             widgets.autoCut_input_Edit.setPlainText(self.g_dict_Cache["fileName"])
-        if self.g_dict_Cache["OutputDirName"]:
+        if self.g_dict_Cache.get("OutputDirName"):
             widgets.autoCut_input2_Edit.setPlainText(self.g_dict_Cache["OutputDirName"])
         self.widgets = widgets
         self.thread1 = None # 调用VAD模型标记音频文件

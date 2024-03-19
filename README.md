@@ -9,9 +9,8 @@
 * 命令窗口预览将要执行的命令，可以修改（懂ffmpeg命令的话，就可以自己修改执行指令）
 * 转码视频文件
 * 提取视频
-* 视频二倍速
 * 视频转MP3
-* 批量转码功能
+* 批量转码功能（暂时不包括批量合成字幕）
 * 转码码率设置
 * 转码速度设置
 * 内挂字幕（仅限mkv格式）
@@ -20,12 +19,10 @@
 * 接入 Whisper 实现视频自动生成字幕（Whisper似乎对中文识别不是很好，容易识别成繁体中文）
 
 未来期望实现功能：
-* 更多的目标格式
+* 更多的预设功能
 * 多段视频拼接（感觉这个功能不是那么重要）
 * whisper模型选择和下载
 * whisper可以使用GPU加速
-
-> Pyside打包是真的大啊，不知道有没有什么可以压缩这部分的方法。
 
 # 软件界面
 ![PyDracula_Default_Dark](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/dark_theme.png?raw=true)

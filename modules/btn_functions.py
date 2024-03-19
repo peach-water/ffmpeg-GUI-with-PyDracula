@@ -169,6 +169,8 @@ class OpenFileFactory(QWidget):
         """
         path = self.pic_path
         lab1 = self.widgets.label
+        if not os.path.exists(path):
+            return
         pic_list = os.listdir(path)
 
         from random import randint
