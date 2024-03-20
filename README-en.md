@@ -21,7 +21,7 @@ features will be implemented in future:
 * More preset mode
 * Multi-segment video stitching (Maybe not so important for this tiny project)
 * Choose and Download Whisper model
-* GPU acceleration 
+* cuda acceleration 
 
 # Multiple Themes
 ![PyDracula_Default_Dark](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/dark_theme.png?raw=true)
@@ -30,7 +30,7 @@ features will be implemented in future:
 
 # 🛠 For developer
 
-> 💥**Warning**: this project was created using PySide6 and Python 3.9, using previous versions can cause compatibility problems.
+> 💥**Warning**: this project was created using PySide6 and Python 3.10, using previous versions can cause compatibility problems.
 
 ## YouTube - Presentation And Tutorial
 Presentation and tutorial video with the main functions of the user interface.

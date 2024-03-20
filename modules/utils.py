@@ -71,7 +71,7 @@ def commandRunner(p, duration=None, buffer=4, progressSignal:Signal=None):
         if time and duration:
             line = line[time.start():time.end()].split("=")
             if line[-1] == "N/A":
-                # 经过检查发现出现 N/A 的输出原因是转码任务较容易时ffmpeg处理太快，例如视频只有 1s 。
+                # 经过检查发现出现 N/A 输出的原因是转码任务较容易时ffmpeg处理太快，例如视频只有 1s 。
                 pass
             else:
                 try:

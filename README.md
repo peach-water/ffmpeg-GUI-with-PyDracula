@@ -21,8 +21,8 @@
 未来期望实现功能：
 * 更多的预设功能
 * 多段视频拼接（感觉这个功能不是那么重要）
-* whisper模型选择和下载
-* whisper可以使用GPU加速
+* whisper 模型选择和下载
+* whisper 使用 cuda 加速
 
 # 软件界面
 ![PyDracula_Default_Dark](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/dark_theme.png?raw=true)
@@ -35,7 +35,7 @@
 关于修改用户界面以及理解项目的教程。
 > 🔗 https://youtu.be/9DnaHg4M_AM
 
-> 💥**警告**: 本项目使用 PySide6 和 Python 3.9 开发，使用较早的版本可能会出现兼容性问题。
+> 💥**警告**: 本项目使用 PySide6 和 Python 3.10 开发，使用较早的版本可能会出现兼容性问题。
 
 ## 高分辨率设置
 

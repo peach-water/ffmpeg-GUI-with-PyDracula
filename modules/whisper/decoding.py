@@ -6,7 +6,6 @@ import numpy as np
 from modules.whisper.audio import CHUNK_LENGTH
 from modules.whisper.tokenizer import Tokenizer, get_tokenizer
 from modules.whisper.utils import compression_ratio
-
 if TYPE_CHECKING:
     from whisper.model import Whisper
 
@@ -187,7 +186,7 @@ class MaximumLikelihoodRanker(SequenceRanker):
             result = []
             for logprob, length in zip(logprobs, lengths):
                 if self.length_penalty is None:
-                    penalty = length
+                    penalty = max(length, 1) # 防止除 0 错误
                 else:
                     # from the Google NMT paper
                     penalty = ((5 + length) / 6) ** self.length_penalty

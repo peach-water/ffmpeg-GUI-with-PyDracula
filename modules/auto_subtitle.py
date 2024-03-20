@@ -168,7 +168,7 @@ class AutoSubtitleFactory(QWidget):
         """
         选择一个本地文件
         """
-        l_home_dir = self.widgets.autoTitle_input_Edit.toPlainText()
+        l_home_dir = self.args.get("output_dir")
         if l_home_dir == "":
             l_home_dir = os.path.abspath(os.path.join(self.absPath, ".."))
 
@@ -177,6 +177,8 @@ class AutoSubtitleFactory(QWidget):
             return
             
         self.args["audio"] = l_fileName
+        self.args["output_dir"] = os.path.dirname(l_fileName)
+        self.widgets.autoTitle_input2_Edit.setPlainText(self.args.get("output_dir"))
         self.widgets.autoTitle_input_Edit.setPlainText(l_fileName)
         
         if self.widgets.autoTitle_input2_Edit.toPlainText() == "":

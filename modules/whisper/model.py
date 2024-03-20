@@ -37,7 +37,8 @@ def model_download(name: str, onnx_file_save_path: str='') -> onnx.ModelProto:
             onnx.save(onnx_graph, f'{onnx_file_save_path}/{name}_11.onnx')
     else:
         onnx_graph: onnx.ModelProto = onnx.load(onnx_file_path)
-        onnx_serialized_graph = onnx._serialize(onnx_graph)
+        # onnx_serialized_graph = onnx._serialize(onnx_graph) # onnx <= 1.14.0
+        onnx_serialized_graph = onnx_graph.SerializeToString() # onnx >= 1.15.0
     return onnx_serialized_graph
 
 def load_model(name: str):
@@ -72,6 +73,8 @@ def load_model(name: str):
         dims_config = {'n_mels': 80, 'n_vocab': 51865, 'n_audio_ctx': 1500, 'n_audio_state': 1024, 'n_audio_head': 16, 'n_audio_layer': 24, 'n_text_ctx': 448, 'n_text_state': 1024, 'n_text_head': 16, 'n_text_layer': 24}
     elif name == "medium.en":
         dims_config = {'n_mels': 80, 'n_vocab': 51864, 'n_audio_ctx': 1500, 'n_audio_state': 1024, 'n_audio_head': 16, 'n_audio_layer': 24, 'n_text_ctx': 448, 'n_text_state': 1024, 'n_text_head': 16, 'n_text_layer': 24}
+    elif name == "large": # V1 V2 V3 都适合这个设置
+        dims_config = {"n_mels": 80, "n_vocab": 51866, "n_audio_ctx": 1500, "n_audio_state": 1280, "n_audio_head": 20, "n_audio_layer": 32, "n_text_ctx": 448, "n_text_state": 1280, "n_text_head": 20, "n_text_layer": 32}
     else:
         raise ValueError(f"model type {name} not supported")
 
@@ -237,6 +240,8 @@ class Whisper():
             size = [24, n_group, length, 768]
         elif self.model_name == "medium.en" or self.model_name == "medium":
             size = [48, n_group, length, 1024]
+        elif self.model_name == "large":
+            size = [64, n_group, length, 1280]
         else:
             raise ValueError(f"Unsupported model type: {self.type}")
         return np.zeros(size, dtype=np.float32)
