@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QWidget, QFileDialog
 import ffmpeg
 
 from .constants import *
-from .utils import commandRunner, readCacheFile, saveCacheFile, getVideoFramsPerSecond, logInitialize
+from .utils import commandRunner, readCacheFile, saveCacheFile, getVideoFramsPerSecond, logInitialize, hidenTerminal
 
 # 监控线程模块
 # ///////////////////////////////////////////////////////////////
@@ -64,12 +64,13 @@ class VideoConvert(QThread):
         """
         if not self.g_batch_Mode:
             self.thread1 = subprocess.Popen(self.command,
-                             stdout=subprocess.PIPE, 
-                             stdin=subprocess.PIPE,
-                             stderr=subprocess.PIPE,
-                             shell=False, 
-                             universal_newlines=True,
-                             encoding="utf-8"
+                                stdout=subprocess.PIPE, 
+                                stdin=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                shell=False, 
+                                universal_newlines=True,
+                                encoding="utf-8",
+                                startupinfo=hidenTerminal()
                             )
             l_runner = commandRunner(self.thread1, duration=self.duration, progressSignal=self.progressSignal)
             l_info = ""
@@ -132,12 +133,13 @@ class VideoConvert(QThread):
             lo_duration = float(lo_probe["format"]["duration"])
 
             self.thread1 = subprocess.Popen(lo_command,
-                             stdout=subprocess.PIPE, 
-                             stdin=subprocess.PIPE,
-                             stderr=subprocess.PIPE,
-                             shell=False,
-                             universal_newlines=True,
-                             encoding="utf-8"
+                                stdout=subprocess.PIPE, 
+                                stdin=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                shell=False,
+                                universal_newlines=True,
+                                encoding="utf-8",
+                                startupinfo=hidenTerminal()
                             )
             l_runner = commandRunner(self.thread1, duration=lo_duration, progressSignal=self.progressSignal)
             lo_info = ""
@@ -159,7 +161,8 @@ class VideoConvert(QThread):
         关闭实际干事的子进程，这个类本身是一个监控进程。
         """
         if self.thread1 is not None:
-            self.thread1.terminate()
+            # self.thread1.terminate() # 去掉危险的 terminate 使用。
+            self.thread1.kill()
             self.thread1.wait()
             self.thread1 = None
         self.deleteLater()
@@ -191,7 +194,7 @@ class ConvertVideoFactory(QWidget):
         self.g_dict_Mode = {
                 "转码H264": {"-c:v": "h264"}, 
                 "转码H265": {"-c:v": "libx265"}, 
-                "转MP3": {"-vn":"", "-f": "mp3"},
+                "转MP3": {"-vn":"", "-acodec": "mp3_mf"},
                 "提取视频": {"-an":"", "-c:v": "copy"},
                 "转GIF": {"-f": "gif"},
                 "内挂字幕": {"-c": "copy", "-c:s": "copy"},

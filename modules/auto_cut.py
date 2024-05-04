@@ -7,7 +7,7 @@ import ffmpeg
 
 from .constants import *
 from .vad_functions import format_timestamp
-from .utils import commandRunner, saveCacheFile, readCacheFile
+from .utils import commandRunner, saveCacheFile, readCacheFile, hidenTerminal
 
 # 监控线程模块
 # ///////////////////////////////////////////////////////////////
@@ -86,7 +86,8 @@ class VADRunner(QThread):
                             stderr=subprocess.PIPE,
                             shell=False, 
                             universal_newlines=True,
-                            encoding="utf-8"
+                            encoding="utf-8",
+                            startupinfo=hidenTerminal()
                         )
             l_runner = commandRunner(self.thread1, buffer=MAX_LOG_LENGTH, progressSignal=self.processSignal)
 
@@ -102,7 +103,8 @@ class VADRunner(QThread):
         """
         self.g_cancel_signal[0] = False
         if self.thread1 is not None:
-            self.thread1.terminate()
+            # self.thread1.terminate()
+            self.thread1.kill()
             self.thread1.wait()
             self.thread1 = None
         self.finishSignal.emit(CANCEL)

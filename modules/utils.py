@@ -3,6 +3,7 @@ import json
 import os
 import ffmpeg
 import logging
+import subprocess
 from logging.handlers import RotatingFileHandler
 
 from PySide6.QtCore import Signal
@@ -171,3 +172,14 @@ def getVideoFramsPerSecond(file:str):
         logging.debug(f"{file} 没有视频信息")
         return 0.0
     return l_fps
+
+def hidenTerminal():
+    """
+    如果是 windows 环境下，用于关闭 subprocess 执行命令时弹出的窗口
+    """
+    if os.name == "nt":
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags = subprocess.STARTF_USESHOWWINDOW
+        startupinfo.wShowWindow = subprocess.SW_HIDE
+        return startupinfo
+    return None
