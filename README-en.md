@@ -16,6 +16,7 @@ Currently implemented features:
 * Merge subtitle
 * Auto Cut the video (Automatically cut out the corresponding video based on the audio)
 * Use Whisper to automatically generate subtitles for videos
+* Use Paraformer to automatically generate chinese subtitles for videos
 
 features will be implemented in future:
 * More preset mode
@@ -172,4 +173,4 @@ After expoting in .py and change the line "import resources_rc" to "from. Resouc
 
 > thanks PINTO0309 for open source repository [whisper-onnx-cpu](https://github.com/PINTO0309/whisper-onnx-cpu) .
 
-
+> thanks RapidAI for open-source repository [RapidASR](https://github.com/RapidAI/RapidASR) .

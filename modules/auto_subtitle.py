@@ -3,12 +3,25 @@ import os
 from PySide6.QtCore import QThread, Signal
 from PySide6.QtWidgets import QWidget, QFileDialog
 import numpy as np
+import logging
 
-from .constants import *
-from .whisper.transcribe import transcribe
-from .whisper.model import load_model
-from .whisper.utils import write_srt, write_txt, write_vtt
-from .utils import readCacheFile, saveCacheFile
+try:
+    # 用于调试本文件时模块导入
+    from constants import *
+    from whisper import transcribe, load_model, write_vtt, write_srt, write_txt
+    from utils import readCacheFile, saveCacheFile
+    from paraformer import RapidParaformer
+    from vad_functions import get_audio_duration, get_transcribe_timestamps, load_audio, format_timestamp
+
+except:
+    from modules.constants import *
+    from modules.whisper import transcribe, load_model, write_vtt, write_srt, write_txt
+    from modules.utils import readCacheFile, saveCacheFile
+    from modules.paraformer import RapidParaformer
+    from modules.vad_functions import get_audio_duration, get_transcribe_timestamps, load_audio, format_timestamp
+
+# test  ////////////////////////////////////////////////////
+
 
 # 监控线程模块
 # ///////////////////////////////////////////////////////////////
@@ -99,15 +112,108 @@ class SubTitleRunner(QThread):
         self.g_information.append(i_processSignal)
         while len(self.g_information) > MAX_LOG_LENGTH:
             self.g_information.pop(0)
-        string = ""
-        for i in self.g_information:
-            string += i + "\n"
+        string = "\n".join(self.g_information)
         self.finishSignal.emit(string)
 
     def close(self, info=None):
         """
         关闭本监控线程，核心是退出run中的transcribe函数调用。
         """
+        self.g_cancel_signal[0] = False
+        pass
+
+class SubTitleRunnerFunASR(QThread):
+    """
+    调用 RapidASR 模块进行语音识别
+    """
+    processSignal = Signal(str)
+    finishSignal = Signal(str)
+    def __init__(self, args:dict, parent=None):
+        super(SubTitleRunnerFunASR, self).__init__(parent)
+        self.g_modelCfgPath = os.path.join(os.path.dirname(__file__), "..", FUNASR_MODEL_PATH) # 加载 FunASR 模型
+        self.g_model = RapidParaformer(self.g_modelCfgPath) # 加载 FunASR 模型
+        self.g_wavPath = args.get("audio") # 指定音频文件信息
+        self.g_cancel_signal = [True] # 用于取消信号
+        self.g_information = [] # 用于缓冲消息
+        self.g_output_ext = args.get("output_ext", "srt") # 默认输出字幕格式为 srt 格式
+        self.g_output_dir: str = args.get("output_dir") # 指定文件输出位置
+    
+    def run(self):
+        """
+        重载 qthread 的 run 方法
+        """
+        l_wavPath = self.g_wavPath
+        l_audio_base, _ = os.path.splitext(os.path.basename(l_wavPath)) # 取出文件名
+        self.finishSignal.emit("正在预处理音频，请稍后...")
+        l_audioLength = get_audio_duration(l_wavPath)
+        l_VADresult = get_transcribe_timestamps(l_wavPath, 0, l_audioLength, None, self.g_cancel_signal)
+        l_audio = load_audio(l_wavPath, start_time=0, duration=l_audioLength)
+        l_segments = []
+        l_failedSegments = [] # 转码出错文本
+        self.processSignal.connect(self.signalHandle)
+        
+        for i, segment in enumerate(l_VADresult):
+            lo_startTime = int(segment["start"] * 16000)
+            lo_duraTime = int(segment["end"] * 16000)
+            lo_audio = np.expand_dims(l_audio[lo_startTime:lo_duraTime], 0) # 升维到 2 维，本身支持 batch 处理
+
+            try:
+                lo_text = self.g_model(lo_audio)
+            except:
+                l_failedSegments.append({"start": segment["start"], "end": segment["end"], "index": i})
+                logging.warn(f"{l_wavPath} {str(l_failedSegments[-1])} transcode Failed. Will retry again.")
+                continue
+            l_segments.append({"text": lo_text[0], "start": segment["start"], "end": segment["end"]})
+            self.processSignal.emit(f"{i}/{len(l_VADresult)}:\t{lo_text}")
+            if not self.g_cancel_signal[0]:
+                self.finishSignal.emit(CANCEL)
+                self.processSignal.disconnect()
+                return
+        # 针对转码错误的，音频前后延长再次尝试
+        # TODO 尝试一下修复 onnxruntime Error
+        # RUNTIME_EXCEPTION : Non-zero status code returned while running Loop node. Name:'Loop_5471' Status Message: Non-zero status code returned while running ConstantOfShape node. Name:'ConstantOfShape_5489' Status Message: D:\a\_work\1\s\onnxruntime\core\framework\op_kernel.cc:83 onnxruntime::OpKernelContext::OutputMLValue status.IsOK() was false. Tensor shape cannot contain any negative value
+        for i, segment in enumerate(l_failedSegments): 
+            lo_startTime = int((segment["start"]-0.13) * 16000)
+            lo_duraTime = int((segment["end"]+0.13) * 16000)
+            lo_audio = np.expand_dims(l_audio[lo_startTime:lo_duraTime], 0)
+            try:
+                lo_text = self.g_model(lo_audio)
+            except:
+                logging.error(f"{l_wavPath} {str(l_failedSegments[i])} transcode Failed.")
+                lo_text = ["<转码失败>"]
+            l_segments.insert(segment["index"], {"text": lo_text[0], "start": segment["start"], "end": segment["end"]})
+        # 输出文件
+        if self.g_output_ext == "txt":
+            with open(os.path.join(self.g_output_dir, l_audio_base+".txt"), "w", encoding="utf-8") as txt:
+                write_txt(l_segments, txt)
+        elif self.g_output_ext == "vtt":
+            with open(os.path.join(self.g_output_dir, l_audio_base+".vtt"), "w", encoding="utf-8") as vtt:
+                write_vtt(l_segments, vtt)
+        else:
+            if self.g_output_ext != "srt":
+                logging.warning(f"输出格式 {self.g_output_ext} 不在 [txt, srt, vtt] 内，修改为 srt")
+            with open(os.path.join(self.g_output_dir, l_audio_base+".srt"), "w", encoding="utf-8") as srt:
+                write_srt(l_segments, srt)
+
+        self.processSignal.emit(DONE)
+        self.processSignal.disconnect()
+
+    def signalHandle(self, i_processSignal):
+        """
+        消息传递，把从whisper内部处理日志发送到 UI 做进度跟踪
+
+        Input:
+        ---
+            i_processSignal - (str)
+                信号传递的 str 格式化日志信息
+        """
+        self.g_information.append(i_processSignal)
+        while len(self.g_information) > MAX_LOG_LENGTH:
+            self.g_information.pop(0)
+        string = "\n".join(self.g_information)
+        self.finishSignal.emit(string)
+
+    def close(self):
         self.g_cancel_signal[0] = False
         pass
 
@@ -124,7 +230,7 @@ class AutoSubtitleFactory(QWidget):
         self.args = {
             "mode": "audio",
             "audio": None, # 必须指定配字幕文件名
-            "model": "tiny", # [tiny, base, small, medium]
+            "model": "funasr", # [funasr, tiny, base, small, medium]
             "output_dir": ".", # 输出位置
             "output_ext": "srt", # 输出格式 srt, vtt, txt 三选一
             "verbose": True, # 显示处理进度
@@ -250,7 +356,10 @@ class AutoSubtitleFactory(QWidget):
             self.widgets.autoTitle_run_Btn.setText(START_BTN)
             return
         # 创建新监控进程
-        self.thread1 = SubTitleRunner(self.args.copy())
+        if self.args["model"] == "funasr":
+            self.thread1 = SubTitleRunnerFunASR(self.args.copy())
+        else:
+            self.thread1 = SubTitleRunner(self.args.copy())
         # 设置新监控进程的数据信息
         self.thread1.finishSignal.connect(self.updateCommandText)
         self.thread1.start()
@@ -273,3 +382,15 @@ class AutoSubtitleFactory(QWidget):
             self.closeThread()
             self.widgets.autoTitle_run_Btn.setText(START_BTN)
         self.widgets.autoTitle_output_Edit.setPlainText(string)
+
+if __name__ == "__main__":
+    # 单元测试？
+
+    # time = load_audio("./test_input.mp3", start_time=format_timestamp(518.850, True), duration=format_timestamp(0.476, True))[None, ...]
+    # print(time.size)
+    config = {"audio": "./test_input.mp3"}
+    model = SubTitleRunnerFunASR(config)
+    model.run()
+    # model = RapidParaformer("c:\\dev-code\\dev Pyqt\\ffmpeg-GUI-with-PyDracula\\model\\models\\config.yaml")
+    # model(time)
+    pass

@@ -15,8 +15,9 @@
 * 转码速度设置
 * 内挂字幕（仅限mkv格式）
 * 内嵌字幕
-* 自动切片（根据音频自动切出对应视频）
-* 接入 Whisper 实现视频自动生成字幕（Whisper似乎对中文识别不是很好，容易识别成繁体中文）
+* 自动切片（根据音频端点分割自动切出对应视频）
+* 接入 Whisper 实现视频自动生成字幕
+* 接入阿里达摩院的 Paraformer 实现自动生成中文字幕
 
 未来期望实现功能：
 * 更多的预设功能
@@ -170,4 +171,4 @@ def _configure has already_library_root_logger() -> None:
 
 > 感谢 PINTO0309 的 repository [whisper-onnx-cpu](https://github.com/PINTO0309/whisper-onnx-cpu) 。
 
-
+> 感谢 RapidAI 的 repository [RapidASR](https://github.com/RapidAI/RapidASR) 。

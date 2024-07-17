@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainXpwRDK.ui'
+## Form generated from reading UI file 'mainaKJAmp.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.5.2
 ##
@@ -1215,6 +1215,7 @@ class Ui_MainWindow(object):
         self.bitrate_mode_Combo.addItem("")
         self.bitrate_mode_Combo.addItem("")
         self.bitrate_mode_Combo.addItem("")
+        self.bitrate_mode_Combo.addItem("")
         self.bitrate_mode_Combo.setObjectName(u"bitrate_mode_Combo")
         self.bitrate_mode_Combo.setCursor(QCursor(Qt.PointingHandCursor))
 
@@ -1564,6 +1565,7 @@ class Ui_MainWindow(object):
         self.autoTitle_comboBox_modelSize.addItem("")
         self.autoTitle_comboBox_modelSize.addItem("")
         self.autoTitle_comboBox_modelSize.addItem("")
+        self.autoTitle_comboBox_modelSize.addItem("")
         self.autoTitle_comboBox_modelSize.setObjectName(u"autoTitle_comboBox_modelSize")
 
         self.verticalLayout_18.addWidget(self.autoTitle_comboBox_modelSize)
@@ -1846,9 +1848,10 @@ class Ui_MainWindow(object):
         self.perset_set_Slider.setToolTip(QCoreApplication.translate("MainWindow", u"\u8f6c\u6362\u901f\u5ea6\u6a21\u5f0f\u9009\u62e9", None))
 #endif // QT_CONFIG(tooltip)
         self.bitrate_mode_Combo.setItemText(0, QCoreApplication.translate("MainWindow", u"\u65e0", None))
-        self.bitrate_mode_Combo.setItemText(1, QCoreApplication.translate("MainWindow", u"crf", None))
-        self.bitrate_mode_Combo.setItemText(2, QCoreApplication.translate("MainWindow", u"vbr", None))
-        self.bitrate_mode_Combo.setItemText(3, QCoreApplication.translate("MainWindow", u"abr", None))
+        self.bitrate_mode_Combo.setItemText(1, QCoreApplication.translate("MainWindow", u"ar", None))
+        self.bitrate_mode_Combo.setItemText(2, QCoreApplication.translate("MainWindow", u"crf", None))
+        self.bitrate_mode_Combo.setItemText(3, QCoreApplication.translate("MainWindow", u"vbr", None))
+        self.bitrate_mode_Combo.setItemText(4, QCoreApplication.translate("MainWindow", u"abr", None))
 
 #if QT_CONFIG(whatsthis)
         self.bitrate_mode_Combo.setWhatsThis(QCoreApplication.translate("MainWindow", u"\u7801\u7387\u63a7\u5236\u6a21\u5f0f", None))
@@ -1927,17 +1930,18 @@ class Ui_MainWindow(object):
         self.autoTitle_comboBox2.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>\u8f93\u51fa\u5b57\u5e55\u6587\u4ef6\u683c\u5f0f</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.label_14.setText(QCoreApplication.translate("MainWindow", u"\u6a21\u578b\u5927\u5c0f", None))
-        self.autoTitle_comboBox_modelSize.setItemText(0, QCoreApplication.translate("MainWindow", u"tiny", None))
-        self.autoTitle_comboBox_modelSize.setItemText(1, QCoreApplication.translate("MainWindow", u"tiny.en", None))
-        self.autoTitle_comboBox_modelSize.setItemText(2, QCoreApplication.translate("MainWindow", u"base", None))
-        self.autoTitle_comboBox_modelSize.setItemText(3, QCoreApplication.translate("MainWindow", u"base.en", None))
-        self.autoTitle_comboBox_modelSize.setItemText(4, QCoreApplication.translate("MainWindow", u"small", None))
-        self.autoTitle_comboBox_modelSize.setItemText(5, QCoreApplication.translate("MainWindow", u"small.en", None))
-        self.autoTitle_comboBox_modelSize.setItemText(6, QCoreApplication.translate("MainWindow", u"medium", None))
-        self.autoTitle_comboBox_modelSize.setItemText(7, QCoreApplication.translate("MainWindow", u"medium.en", None))
+        self.autoTitle_comboBox_modelSize.setItemText(0, QCoreApplication.translate("MainWindow", u"funasr", None))
+        self.autoTitle_comboBox_modelSize.setItemText(1, QCoreApplication.translate("MainWindow", u"tiny", None))
+        self.autoTitle_comboBox_modelSize.setItemText(2, QCoreApplication.translate("MainWindow", u"tiny.en", None))
+        self.autoTitle_comboBox_modelSize.setItemText(3, QCoreApplication.translate("MainWindow", u"base", None))
+        self.autoTitle_comboBox_modelSize.setItemText(4, QCoreApplication.translate("MainWindow", u"base.en", None))
+        self.autoTitle_comboBox_modelSize.setItemText(5, QCoreApplication.translate("MainWindow", u"small", None))
+        self.autoTitle_comboBox_modelSize.setItemText(6, QCoreApplication.translate("MainWindow", u"small.en", None))
+        self.autoTitle_comboBox_modelSize.setItemText(7, QCoreApplication.translate("MainWindow", u"medium", None))
+        self.autoTitle_comboBox_modelSize.setItemText(8, QCoreApplication.translate("MainWindow", u"medium.en", None))
 
 #if QT_CONFIG(tooltip)
-        self.autoTitle_comboBox_modelSize.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>\u9009\u62e9\u6a21\u578b\u5927\u5c0f\uff0c\u540e\u7f00\u5e26 en \u8868\u793a\u4ec5\u652f\u6301\u82f1\u6587\u8bc6\u522b\u6a21\u578b\u3002\u5982\u679c\u76ee\u5f55\u4e0b\u6ca1\u6709\u6a21\u578b\u4f1a\u81ea\u52a8\u4ece\u7f51\u7edc\u4e0b\u8f7d\uff0c\u4e0b\u8f7d\u65f6\u95f4\u8f83\u957f\u8bf7\u8010\u5fc3\u7b49\u5f85\u3002</p></body></html>", None))
+        self.autoTitle_comboBox_modelSize.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>funasr\u4f7f\u7528\u963f\u91cc\u8fbe\u6469\u9662\u7684funasr\u8bed\u97f3\u8bc6\u522b\u3002\u5176\u4f59\u5219\u662fopenAI\u7684whisper\u9009\u62e9\u6a21\u578b\u5927\u5c0f\uff0c\u540e\u7f00\u5e26 en \u8868\u793a\u4ec5\u652f\u6301\u82f1\u6587\u8bc6\u522b\u6a21\u578b\u3002\u6a21\u578b\u4e0b\u8f7d\u65f6\u95f4\u8f83\u957f\u8bf7\u8010\u5fc3\u7b49\u5f85\u3002</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.autoTitle_run_Btn.setText(QCoreApplication.translate("MainWindow", u"\u5f00\u59cb\u8bc6\u522b", None))
         self.btn_draw.setText(QCoreApplication.translate("MainWindow", u"\u7ed8\u56fe", None))
@@ -1946,6 +1950,6 @@ class Ui_MainWindow(object):
         self.btn_print.setText(QCoreApplication.translate("MainWindow", u"Print", None))
         self.btn_logout.setText(QCoreApplication.translate("MainWindow", u"Logout", None))
         self.creditsLabel.setText(QCoreApplication.translate("MainWindow", u"Peach Water", None))
-        self.version.setText(QCoreApplication.translate("MainWindow", u"v0.2.1", None))
+        self.version.setText(QCoreApplication.translate("MainWindow", u"v0.2.2", None))
     # retranslateUi
 

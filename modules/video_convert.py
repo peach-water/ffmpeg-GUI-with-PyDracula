@@ -64,8 +64,7 @@ class VideoConvert(QThread):
         """
         if not self.g_batch_Mode:
             self.thread1 = subprocess.Popen(self.command,
-                                stdout=subprocess.PIPE, 
-                                stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
                                 shell=False, 
                                 universal_newlines=True,
@@ -134,7 +133,6 @@ class VideoConvert(QThread):
 
             self.thread1 = subprocess.Popen(lo_command,
                                 stdout=subprocess.PIPE, 
-                                stdin=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
                                 shell=False,
                                 universal_newlines=True,
@@ -186,7 +184,7 @@ class ConvertVideoFactory(QWidget):
         # self.widgets.input_Edit3.setPlainText(os.path.join(os.path.expanduser("~"), "Desktop"))
         self.g_convert_Mode = {} # 保存具体的转码指令
         self.g_convert_Mode_Name = "" # 标记转码模式
-        self.g_bitrate_Control = "" # 码率控制
+        self.g_bitrate_Control = "" # 其他参数，默认设置是一些码率控制
         self.g_preset_Mode = "fast" # 转码速率控制
         self.g_file_Ext = "mp4" # 输出格式
         self.g_batch_Mode = False # 是否启用批量处理模式

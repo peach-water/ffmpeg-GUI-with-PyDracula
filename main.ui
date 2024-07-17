@@ -2198,6 +2198,11 @@ background-repeat: no-repeat;</string>
                                    </item>
                                    <item>
                                     <property name="text">
+                                     <string>ar</string>
+                                    </property>
+                                   </item>
+                                   <item>
+                                    <property name="text">
                                      <string>crf</string>
                                     </property>
                                    </item>
@@ -2865,8 +2870,13 @@ background-repeat: no-repeat;</string>
                              <item>
                               <widget class="QComboBox" name="autoTitle_comboBox_modelSize">
                                <property name="toolTip">
-                                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;选择模型大小，后缀带 en 表示仅支持英文识别模型。如果目录下没有模型会自动从网络下载，下载时间较长请耐心等待。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;funasr使用阿里达摩院的funasr语音识别。其余则是openAI的whisper选择模型大小，后缀带 en 表示仅支持英文识别模型。模型下载时间较长请耐心等待。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                                </property>
+                               <item>
+                                <property name="text">
+                                 <string>funasr</string>
+                                </property>
+                               </item>
                                <item>
                                 <property name="text">
                                  <string>tiny</string>
@@ -3254,7 +3264,7 @@ background-repeat: no-repeat;</string>
                 <item>
                  <widget class="QLabel" name="version">
                   <property name="text">
-                   <string>v0.2.1</string>
+                   <string>v0.2.2</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

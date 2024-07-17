@@ -145,7 +145,7 @@ def get_speech_timestamps(audio,
                 progress = audio_length_samples
             progress_percent = round((progress / audio_length_samples) * 100, 2)
             progress_tracking_callback.emit(int(progress_percent))
-        if not cancel[0]:
+        if cancel is not None and not cancel[0]:
             return []
     
     triggered = False
@@ -419,7 +419,7 @@ def get_audio_duration(file: str):
     return float(ffmpeg.probe(file)["format"]["duration"])
 
 if __name__ == "__main__":
-    file = "./测试.mp3"
+    file = "./test_input.mp3"
     a = get_audio_duration(file)
     result = get_transcribe_timestamps(file, 0, a)
     print(result)

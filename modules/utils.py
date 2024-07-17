@@ -13,7 +13,7 @@ def logInitialize():
     初始化一个日志器
     """
     logging.basicConfig(level=logging.INFO)
-    l_log_Handle = RotatingFileHandler("log.txt", maxBytes=1024*1024, backupCount=5)
+    l_log_Handle = RotatingFileHandler("log.txt", maxBytes=1024*1024, backupCount=5, encoding="utf-8")
     l_formatter = logging.Formatter("%(asctime)s - %(name)s %(levelname)s - %(message)s- from : %(funcName)s,")
     # 设置日志记录格式
     l_log_Handle.setFormatter(l_formatter)

@@ -7,6 +7,7 @@ import requests
 import psutil
 import onnx
 import onnxruntime as ort
+
 from modules.whisper.decoding import detect_language as detect_language_function, decode as decode_function
 from modules.whisper.utils import onnx_dtype_to_np_dtype_convert
 
@@ -114,7 +115,7 @@ class OnnxAudioEncoder():
                 path_or_bytes=model_download(name=f'{model}_encoder'),
                 sess_options=sess_options,
                 providers=[
-                    'CPUExecutionProvider'
+                    'CUDAExecutionProvider','CPUExecutionProvider'
                 ],
             )
         self.inputs = {
@@ -152,7 +153,7 @@ class OnnxTextDecoder():
                 path_or_bytes=model_download(name=f'{model}_decoder'),
                 sess_options=sess_options,
                 providers=[
-                    'CPUExecutionProvider'
+                    'CUDAExecutionProvider','CPUExecutionProvider'
                 ],
             )
         self.inputs = {

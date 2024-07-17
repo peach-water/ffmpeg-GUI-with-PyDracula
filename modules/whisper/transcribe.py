@@ -14,11 +14,7 @@ warnings.simplefilter(action='ignore', category=RuntimeWarning)
 
 import numpy as np
 import tqdm
-# import pyaudio
-# import soundfile as sf
-# import speech_recognition as sr
 
-from modules.whisper.model import load_model, available_models
 from modules.whisper.audio import SAMPLE_RATE, N_FRAMES, HOP_LENGTH, pad_or_trim, log_mel_spectrogram
 from modules.whisper.decoding import DecodingOptions, DecodingResult
 from modules.whisper.tokenizer import LANGUAGES, TO_LANGUAGE_CODE, get_tokenizer
@@ -397,6 +393,7 @@ def cli():
     #         pass
 '''
 
+'''
 class SubTitleRunner():
     """
     调用Whisper配字幕，使用 onnx 封装的 whisper 神经网络模型
@@ -460,13 +457,13 @@ class SubTitleRunner():
         else:
             with open(os.path.join(self.g_output_dir, l_audio_base+".srt"), "w", encoding="utf-8") as srt:
                 write_srt(result["segments"], srt)
-
+'''
 
 if __name__ == '__main__':
     # cli()
     args = {
             "mode": "audio",
-            "audio": "E:/FFOutput/\u4e2d\u5c71\u5927\u5b66PPT\u5236\u4f5c\u5206\u4eab_01-11_15-23-43.mp3", # 必须指定配字幕文件名
+            "audio": "E:/FFOutput/_01-11_15-23-43.mp3", # 必须指定配字幕文件名
             "model": "tiny", # [tiny, base, small, medium]
             "output_dir": ".", # 输出位置
             "output_ext": "srt", # 输出格式 srt, vtt, txt 三选一
@@ -486,5 +483,5 @@ if __name__ == '__main__':
             "logprob_threshold": -1.0,
             "no_speech_threshold": 0.6
         }
-    s = SubTitleRunner(args.copy())
-    s.run()
+    # s = SubTitleRunner(args.copy())
+    # s.run()
