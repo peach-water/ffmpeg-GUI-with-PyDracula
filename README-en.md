@@ -25,8 +25,8 @@ features will be implemented in future:
 * cuda acceleration 
 
 # Multiple Themes
-![PyDracula_Default_Dark](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/dark_theme.png?raw=true)
-![PyDracula_Light](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/master/gallery/light_theme.png?raw=true)
+![PyDracula_Default_Dark](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/main/gallery/dark_theme.png?raw=true)
+![PyDracula_Light](https://github.com/peach-water/ffmpeg-GUI-with-PyDracula/blob/main/gallery/light_theme.png?raw=true)
 
 
 # 🛠 For developer
