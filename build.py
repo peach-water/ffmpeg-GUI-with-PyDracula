@@ -48,25 +48,25 @@ def copyDir(src, tar):
 
 def build(arg:dict):
     # 一些必要的构建参数
-    parameter = "--copy-metadata tqdm --copy-metadata regex --copy-metadata requests --copy-metadata packaging --copy-metadata filelock --copy-metadata numpy --copy-metadata tokenizers --copy-metadata huggingface-hub --copy-metadata safetensors --copy-metadata pyyaml"
+    parameter = "-y "
+    # parameter += "--copy-metadata tqdm --copy-metadata regex --copy-metadata requests --copy-metadata packaging --copy-metadata filelock --copy-metadata numpy --copy-metadata pyyaml"
+    # parameter += " --add-data model:./model --add-data resources:./resources"
 
     if arg.g:
         os.system("pyinstaller -D ./main.py " + parameter)
     else:
         os.system("pyinstaller -Dw ./main.py " + parameter)
 
-    if not os.path.exists("./dist/main/main.exe"):
+    if not os.path.exists("./dist"):
         print("发生错误，请检查构建日志")
         exit(-1)
 
     print("处理剩余配置...")
     print("拷贝主题文件")
-    copyDir("./themes", "./dist/main/themes")
+    copyDir("./resources/themes", "./dist/main/resources/themes")
     print("拷贝配置文件")
-    copyDir("./modules/whisper/assets",
-            "./dist/main/_internal/modules/whisper/assets")
     print("拷贝模型文件")
-    copyDir("./model", "./dist/main/_internal/model")
+    copyDir("./model", "./dist/main/model")
     print("清理文件...")
 
 if __name__ == "__main__":

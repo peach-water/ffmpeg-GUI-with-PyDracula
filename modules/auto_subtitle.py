@@ -8,15 +8,15 @@ import logging
 try:
     # 用于调试本文件时模块导入
     from constants import *
-    from whisper import transcribe, load_model, write_vtt, write_srt, write_txt
-    from utils import readCacheFile, saveCacheFile
+    # from whisper import transcribe, load_model
+    from utils import readCacheFile, saveCacheFile, write_vtt, write_srt, write_txt
     from paraformer import RapidParaformer
     from vad_functions import get_audio_duration, get_transcribe_timestamps, load_audio, format_timestamp
 
 except:
     from modules.constants import *
-    from modules.whisper import transcribe, load_model, write_vtt, write_srt, write_txt
-    from modules.utils import readCacheFile, saveCacheFile
+    # from modules.whisper import transcribe, load_model
+    from modules.utils import readCacheFile, saveCacheFile, write_vtt, write_srt, write_txt
     from modules.paraformer import RapidParaformer
     from modules.vad_functions import get_audio_duration, get_transcribe_timestamps, load_audio, format_timestamp
 
@@ -58,7 +58,7 @@ class SubTitleRunner(QThread):
         else:
             self.g_temperature = [self.g_temperature]
         
-        self.g_model = load_model(self.g_model_name)
+        # self.g_model = load_model(self.g_model_name)
 
         self.args = args
         self.g_output_ext = self.args.pop("output_ext")
@@ -72,6 +72,9 @@ class SubTitleRunner(QThread):
         """
         l_audio_path = self.args.pop("audio")
         try:
+            # TODO 准备上Whisper-cpp模块
+            self.finishSignal.emit("whisper 功能暂时取消")
+            return
             result = transcribe(
                 model=self.g_model,
                 audio=l_audio_path,
@@ -130,27 +133,35 @@ class SubTitleRunnerFunASR(QThread):
     finishSignal = Signal(str)
     def __init__(self, args:dict, parent=None):
         super(SubTitleRunnerFunASR, self).__init__(parent)
-        self.g_modelCfgPath = os.path.join(os.path.dirname(__file__), "..", FUNASR_MODEL_PATH) # 加载 FunASR 模型
-        self.g_model = RapidParaformer(self.g_modelCfgPath) # 加载 FunASR 模型
-        self.g_wavPath = args.get("audio") # 指定音频文件信息
-        self.g_cancel_signal = [True] # 用于取消信号
-        self.g_information = [] # 用于缓冲消息
-        self.g_output_ext = args.get("output_ext", "srt") # 默认输出字幕格式为 srt 格式
-        self.g_output_dir: str = args.get("output_dir") # 指定文件输出位置
+        self.g_modelCfgPath = os.path.join(os.getcwd(), FUNASR_MODEL_PATH) # 加载 FunASR 模型
+        try:
+            self.g_model = RapidParaformer(self.g_modelCfgPath) # 加载 FunASR 模型
+            self.g_wavPath = args.get("audio") # 指定音频文件信息
+            self.g_cancel_signal = [True] # 用于取消信号
+            self.g_information = [] # 用于缓冲消息
+            self.g_output_ext = args.get("output_ext", "srt") # 默认输出字幕格式为 srt 格式
+            self.g_output_dir: str = args.get("output_dir") # 指定文件输出位置
+        except BaseException as e:
+            logging.fatal(e)
+            self.finishSignal.emit(e)
     
     def run(self):
         """
         重载 qthread 的 run 方法
         """
-        l_wavPath = self.g_wavPath
-        l_audio_base, _ = os.path.splitext(os.path.basename(l_wavPath)) # 取出文件名
-        self.finishSignal.emit("正在预处理音频，请稍后...")
-        l_audioLength = get_audio_duration(l_wavPath)
-        l_VADresult = get_transcribe_timestamps(l_wavPath, 0, l_audioLength, None, self.g_cancel_signal)
-        l_audio = load_audio(l_wavPath, start_time=0, duration=l_audioLength)
-        l_segments = []
-        l_failedSegments = [] # 转码出错文本
-        self.processSignal.connect(self.signalHandle)
+        try:
+            self.processSignal.connect(self.signalHandle)
+            l_wavPath = self.g_wavPath
+            l_audio_base, _ = os.path.splitext(os.path.basename(l_wavPath)) # 取出文件名
+            self.finishSignal.emit("正在预处理音频，请稍后...")
+            l_audioLength = get_audio_duration(l_wavPath)
+            l_VADresult = get_transcribe_timestamps(l_wavPath, 0, l_audioLength, None, self.g_cancel_signal)
+            l_audio = load_audio(l_wavPath, start_time=0, duration=l_audioLength)
+            l_segments = []
+            l_failedSegments = [] # 转码出错文本
+        except BaseException as e:
+            self.finishSignal.emit(e)
+            logging.fatal(e)
         
         for i, segment in enumerate(l_VADresult):
             lo_startTime = int(segment["start"] * 16000)

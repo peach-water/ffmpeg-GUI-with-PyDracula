@@ -113,7 +113,7 @@ class MainWindow(QMainWindow):
         useCustomTheme = True
         self.useCustomTheme = useCustomTheme
         self.absPath = absPath
-        themeFile = os.path.abspath(os.path.join(absPath, "themes\py_dracula_dark.qss"))
+        themeFile = os.path.abspath(os.path.join(absPath, "resources\\themes\py_dracula_dark.qss"))
 
         # SET THEME AND HACKS
         if useCustomTheme:
@@ -230,13 +230,13 @@ class MainWindow(QMainWindow):
         # 切换主题黑夜/白天
         if btnName == "btn_message":
             if self.useCustomTheme:
-                themeFile = os.path.abspath(os.path.join(self.absPath, "themes\py_dracula_dark.qss"))
+                themeFile = os.path.abspath(os.path.join(self.absPath, "resources\\themes\py_dracula_dark.qss"))
                 UIFunctions.theme(self, themeFile, True)
                 # SET HACKS
                 AppFunctions.setThemeHack(self)
                 self.useCustomTheme = False
             else:
-                themeFile = os.path.abspath(os.path.join(self.absPath, "themes\py_dracula_light.qss"))
+                themeFile = os.path.abspath(os.path.join(self.absPath, "resources\\themes\py_dracula_light.qss"))
                 UIFunctions.theme(self, themeFile, True)
                 # SET HACKS
                 AppFunctions.setThemeHack(self)

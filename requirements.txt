@@ -1,9 +1,7 @@
 Pyside6
-ffmpeg-python=0.2.0
-onnxruntime=1.18.1
-onnx=1.15.0
+ffmpeg-python==0.2.0
+onnxruntime==1.18.1
+onnx==1.15.0
 psutil
-pyinstaller=6.5.0
+pyinstaller==6.14.0
 numpy
-transformers=4.38.2
-tokenizers=0.15.2

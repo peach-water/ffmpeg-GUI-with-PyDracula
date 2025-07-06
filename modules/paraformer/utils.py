@@ -37,12 +37,14 @@ class TokenIDConverter:
     @staticmethod
     def load_token(file_path: Union[Path, str]) -> List:
         if not Path(file_path).exists():
+            logging.fatal(f"The {file_path} does not exist.")
             raise TokenIDConverterError(f"The {file_path} does not exist.")
 
         with open(str(file_path), "rb") as f:
             token_list = pickle.load(f)
 
         if len(token_list) != len(set(token_list)):
+            logging.fatal("The Token exists duplicated symbol.")
             raise TokenIDConverterError("The Token exists duplicated symbol.")
         return token_list
 
@@ -51,6 +53,7 @@ class TokenIDConverter:
 
     def ids2tokens(self, integers: Union[np.ndarray, Iterable[int]]) -> List[str]:
         if isinstance(integers, np.ndarray) and integers.ndim != 1:
+            logging.fatal(f"Must be 1 dim ndarray, but got {integers.ndim}")
             raise TokenIDConverterError(
                 f"Must be 1 dim ndarray, but got {integers.ndim}"
             )
@@ -59,6 +62,7 @@ class TokenIDConverter:
     def tokens2ids(self, tokens: Iterable[str]) -> List[int]:
         token2id = {v: i for i, v in enumerate(self.token_list)}
         if self.unk_symbol not in token2id:
+            logging.fatal(f"Unknown symbol '{self.unk_symbol}' doesn't exist in the token_list")
             raise TokenIDConverterError(
                 f"Unknown symbol '{self.unk_symbol}' doesn't exist in the token_list"
             )
@@ -343,52 +347,21 @@ class OrtInferSession:
     def _verify_model(model_path):
         model_path = Path(model_path)
         if not model_path.exists():
+            logging.fatal(f"{model_path} does not exists.")
             raise FileNotFoundError(f"{model_path} does not exists.")
         if not model_path.is_file():
+            logging.fatal(f"{model_path} is not a file.")
             raise FileExistsError(f"{model_path} is not a file.")
 
 
 def read_yaml(yaml_path: Union[str, Path]) -> Dict:
     if not Path(yaml_path).exists():
+        logging.fatal(f"The {yaml_path} does not exist.")
         raise FileExistsError(f"The {yaml_path} does not exist.")
 
     with open(str(yaml_path), "rb") as f:
         data = yaml.load(f, Loader=yaml.Loader)
     return data
-
-# //////////////////////////////////////////////////////////
-# 拟取消使用
-# //////////////////////////////////////////////////////////
-@functools.lru_cache()
-def get_logger(name="rapdi_paraformer"):
-    """Initialize and get a logger by name.
-    If the logger has not been initialized, this method will initialize the
-    logger by adding one or two handlers, otherwise the initialized logger will
-    be directly returned. During initialization, a StreamHandler will always be
-    added.
-    Args:
-        name (str): Logger name.
-    Returns:
-        logging.Logger: The expected logger.
-    """
-    logger = logging.getLogger(name)
-    if name in logger_initialized:
-        return logger
-
-    for logger_name in logger_initialized:
-        if name.startswith(logger_name):
-            return logger
-
-    formatter = logging.Formatter(
-        "[%(asctime)s] %(name)s %(levelname)s: %(message)s", datefmt="%Y/%m/%d %H:%M:%S"
-    )
-
-    sh = logging.StreamHandler()
-    sh.setFormatter(formatter)
-    logger.addHandler(sh)
-    logger_initialized[name] = True
-    logger.propagate = False
-    return logger
 
 def load_audio(file: str, sample_rate: int = 16000, 
                start_time: str = None, duration: str = None):

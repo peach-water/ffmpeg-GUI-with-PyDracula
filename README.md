@@ -61,16 +61,14 @@ python3 main.py
 ```
 ## 编译
 > ### 使用 Pyinstaller 编译 exe 项目
-```console
-pyinstaller -Dw ./main.py --copy-metadata tqdm --copy-metadata regex --copy-metadata requests --copy-metadata packaging --copy-metadata filelock --copy-metadata numpy --copy-metadata tokenizers --copy-metadata huggingface-hub --copy-metadata safetensors --copy-metadata pyyaml
+```bash
+python build.py
 ```
-> transformers库打包需要这一溜的metadata数据才可以正常运行，所以需要加上。
 
-在那之前还需要使用命令 pip install pyinstaller==6.3.0 来安装打包环境。
+在那之前还需要使用命令 pip install pyinstaller==6.14.0 来安装打包环境。
 更新的pyinstaller没有尝试。
 编译成功后，在当前目录下可以找到"./dist/main/main.exe"文件，在启动之前还需要复制theme主题文件到"./dist/main"，否则会因为找不到主题文件报错。类似的还有：
-* 复制model文件到'./dist/main/_internal'目录下，自动剪辑和自动配字幕功能需要这个模型。
-* 复制modules/whisper/文件夹到'./dist/main/modules/'目录下，配字幕需要这个功能
+* 复制model文件到'./dist/main/'目录下，自动剪辑和自动配字幕功能需要这个模型。
 
 ## 错误修复
 

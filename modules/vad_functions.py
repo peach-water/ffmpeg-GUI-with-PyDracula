@@ -2,6 +2,7 @@
 # from https://github.com/snakers4/silero-vad
 # ////////////////////////////////////////////////////////////////////////////
 
+import logging
 import time
 import warnings
 from typing import Any, Iterator, List, Dict
@@ -359,14 +360,14 @@ def get_transcribe_timestamps(audio: str, start_time: float, end_time: float, pr
         chunk_start += chunk_duration
 
     perf_end_time = time.perf_counter()
-    print("VAD processing took {} seconds".format(perf_end_time - perf_start_time))
+    logging.debug("VAD processing took {} seconds".format(perf_end_time - perf_start_time))
 
     return result
 
 def create_model():
     import os
-    absPath = os.path.dirname(os.path.abspath(__file__))
-    absPath = os.path.join(absPath, "../model/silero_vad.onnx").replace("\\", "/")
+    absPath = os.getcwd()
+    absPath = os.path.join(absPath, "model/silero_vad.onnx").replace("\\", "/")
 
     model = OnnxWrapper(absPath)
     return model

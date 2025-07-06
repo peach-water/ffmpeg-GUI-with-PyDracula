@@ -8,9 +8,6 @@ datas += copy_metadata('requests')
 datas += copy_metadata('packaging')
 datas += copy_metadata('filelock')
 datas += copy_metadata('numpy')
-datas += copy_metadata('tokenizers')
-datas += copy_metadata('huggingface-hub')
-datas += copy_metadata('safetensors')
 datas += copy_metadata('pyyaml')
 
 
